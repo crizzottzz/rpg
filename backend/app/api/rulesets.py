@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, Response, request, jsonify
 
 from app.models.ruleset import Ruleset, RulesetEntity
 from app.models.overlay import UserOverlay
@@ -10,7 +10,7 @@ rulesets_bp = Blueprint("rulesets", __name__)
 
 @rulesets_bp.route("/api/rulesets")
 @jwt_required
-def list_rulesets():
+def list_rulesets() -> Response:
     """
     List all available rulesets.
 
@@ -55,7 +55,7 @@ def list_rulesets():
 
 @rulesets_bp.route("/api/rulesets/<ruleset_id>")
 @jwt_required
-def get_ruleset(ruleset_id: str):
+def get_ruleset(ruleset_id: str) -> tuple[Response, int] | Response:
     """
     Get a single ruleset by ID.
 
@@ -87,7 +87,7 @@ def get_ruleset(ruleset_id: str):
 
 @rulesets_bp.route("/api/rulesets/<ruleset_id>/entities")
 @jwt_required
-def list_entities(ruleset_id: str):
+def list_entities(ruleset_id: str) -> tuple[Response, int] | Response:
     """
     List entities in a ruleset with optional filtering and pagination.
 
@@ -218,7 +218,7 @@ def apply_overlays(entity: RulesetEntity, user_id: str, campaign_id: str | None 
 
 @rulesets_bp.route("/api/rulesets/<ruleset_id>/entities/<entity_id>")
 @jwt_required
-def get_entity(ruleset_id: str, entity_id: str):
+def get_entity(ruleset_id: str, entity_id: str) -> tuple[Response, int] | Response:
     """
     Get a single entity with optional overlay merging.
 

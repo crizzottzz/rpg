@@ -1,5 +1,5 @@
 import json
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, Response, request, jsonify
 
 from app.extensions import db
 from app.models.character import Character
@@ -11,7 +11,7 @@ characters_bp = Blueprint("characters", __name__)
 
 @characters_bp.route("/api/campaigns/<campaign_id>/characters")
 @jwt_required
-def list_characters(campaign_id: str):
+def list_characters(campaign_id: str) -> tuple[Response, int] | Response:
     """
     List all characters in a campaign.
 
@@ -47,7 +47,7 @@ def list_characters(campaign_id: str):
 
 @characters_bp.route("/api/campaigns/<campaign_id>/characters", methods=["POST"])
 @jwt_required
-def create_character(campaign_id: str):
+def create_character(campaign_id: str) -> tuple[Response, int] | Response:
     """
     Create a new character in a campaign.
 
@@ -136,7 +136,7 @@ def create_character(campaign_id: str):
 
 @characters_bp.route("/api/characters/<character_id>")
 @jwt_required
-def get_character(character_id: str):
+def get_character(character_id: str) -> tuple[Response, int] | Response:
     """
     Get a single character by ID.
 
@@ -170,7 +170,7 @@ def get_character(character_id: str):
 
 @characters_bp.route("/api/characters/<character_id>", methods=["PUT"])
 @jwt_required
-def update_character(character_id: str):
+def update_character(character_id: str) -> tuple[Response, int] | Response:
     """
     Update a character's fields.
 
@@ -249,7 +249,7 @@ def update_character(character_id: str):
 
 @characters_bp.route("/api/characters/<character_id>", methods=["DELETE"])
 @jwt_required
-def delete_character(character_id: str):
+def delete_character(character_id: str) -> tuple[str, int] | tuple[Response, int]:
     """
     Delete a character.
 

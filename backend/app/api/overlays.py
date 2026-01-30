@@ -1,5 +1,5 @@
 import json
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, Response, request, jsonify
 
 from app.extensions import db
 from app.models.overlay import UserOverlay
@@ -11,7 +11,7 @@ overlays_bp = Blueprint("overlays", __name__)
 
 @overlays_bp.route("/api/overlays")
 @jwt_required
-def list_overlays():
+def list_overlays() -> Response:
     """
     List overlays for the current user with optional filtering.
 
@@ -59,7 +59,7 @@ def list_overlays():
 
 @overlays_bp.route("/api/overlays", methods=["POST"])
 @jwt_required
-def create_overlay():
+def create_overlay() -> tuple[Response, int] | Response:
     """
     Create a new entity overlay.
 
@@ -137,7 +137,7 @@ def create_overlay():
 
 @overlays_bp.route("/api/overlays/<overlay_id>", methods=["PUT"])
 @jwt_required
-def update_overlay(overlay_id: str):
+def update_overlay(overlay_id: str) -> tuple[Response, int] | Response:
     """
     Update an overlay's data or type.
 
@@ -196,7 +196,7 @@ def update_overlay(overlay_id: str):
 
 @overlays_bp.route("/api/overlays/<overlay_id>", methods=["DELETE"])
 @jwt_required
-def delete_overlay(overlay_id: str):
+def delete_overlay(overlay_id: str) -> tuple[str, int] | tuple[Response, int]:
     """
     Delete an overlay.
 

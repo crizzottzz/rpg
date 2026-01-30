@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, Response, request, jsonify
 
 from app.models.user import User
 from app.utils.auth import create_access_token, create_refresh_token, decode_token, jwt_required
@@ -7,7 +7,7 @@ auth_bp = Blueprint("auth", __name__)
 
 
 @auth_bp.route("/api/auth/login", methods=["POST"])
-def login():
+def login() -> tuple[Response, int] | Response:
     """
     Authenticate a user and return JWT tokens.
 
@@ -67,7 +67,7 @@ def login():
 
 
 @auth_bp.route("/api/auth/refresh", methods=["POST"])
-def refresh():
+def refresh() -> tuple[Response, int] | Response:
     """
     Refresh an access token using a refresh token.
 
@@ -121,7 +121,7 @@ def refresh():
 
 @auth_bp.route("/api/auth/me")
 @jwt_required
-def me():
+def me() -> Response:
     """
     Get the currently authenticated user.
 

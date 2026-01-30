@@ -1,5 +1,5 @@
 import json
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, Response, request, jsonify
 
 from app.extensions import db
 from app.models.campaign import Campaign
@@ -11,7 +11,7 @@ campaigns_bp = Blueprint("campaigns", __name__)
 
 @campaigns_bp.route("/api/campaigns")
 @jwt_required
-def list_campaigns():
+def list_campaigns() -> Response:
     """
     List all campaigns for the current user.
 
@@ -41,7 +41,7 @@ def list_campaigns():
 
 @campaigns_bp.route("/api/campaigns", methods=["POST"])
 @jwt_required
-def create_campaign():
+def create_campaign() -> tuple[Response, int] | Response:
     """
     Create a new campaign.
 
@@ -110,7 +110,7 @@ def create_campaign():
 
 @campaigns_bp.route("/api/campaigns/<campaign_id>")
 @jwt_required
-def get_campaign(campaign_id: str):
+def get_campaign(campaign_id: str) -> tuple[Response, int] | Response:
     """
     Get a single campaign by ID.
 
@@ -144,7 +144,7 @@ def get_campaign(campaign_id: str):
 
 @campaigns_bp.route("/api/campaigns/<campaign_id>", methods=["PUT"])
 @jwt_required
-def update_campaign(campaign_id: str):
+def update_campaign(campaign_id: str) -> tuple[Response, int] | Response:
     """
     Update a campaign's fields.
 
@@ -211,7 +211,7 @@ def update_campaign(campaign_id: str):
 
 @campaigns_bp.route("/api/campaigns/<campaign_id>", methods=["DELETE"])
 @jwt_required
-def delete_campaign(campaign_id: str):
+def delete_campaign(campaign_id: str) -> tuple[str, int] | tuple[Response, int]:
     """
     Delete a campaign and all its characters.
 
