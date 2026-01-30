@@ -1,0 +1,65 @@
+import uuid
+import json
+from app.extensions import db
+
+
+class Ruleset(db.Model):
+    __tablename__ = "rulesets"
+
+    id = db.Column(db.Text, primary_key=True, default=lambda: str(uuid.uuid4()))
+    key = db.Column(db.String(50), unique=True, nullable=False)
+    name = db.Column(db.String(200), nullable=False)
+    source_type = db.Column(db.String(50), nullable=False)  # 'open5e', 'file', 'manual'
+    source_config = db.Column(db.Text, default="{}")  # JSON
+    entity_types = db.Column(db.Text, default="[]")  # JSON list of entity type keys
+
+    entities = db.relationship("RulesetEntity", backref="ruleset", lazy="dynamic",
+                               cascade="all, delete-orphan")
+    campaigns = db.relationship("Campaign", backref="ruleset", lazy="dynamic")
+
+    def get_source_config(self):
+        return json.loads(self.source_config) if self.source_config else {}
+
+    def get_entity_types(self):
+        return json.loads(self.entity_types) if self.entity_types else []
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "key": self.key,
+            "name": self.name,
+            "source_type": self.source_type,
+            "entity_types": self.get_entity_types(),
+            "entity_count": self.entities.count(),
+        }
+
+
+class RulesetEntity(db.Model):
+    __tablename__ = "ruleset_entities"
+
+    id = db.Column(db.Text, primary_key=True, default=lambda: str(uuid.uuid4()))
+    ruleset_id = db.Column(db.Text, db.ForeignKey("rulesets.id"), nullable=False)
+    entity_type = db.Column(db.String(50), nullable=False, index=True)
+    source_key = db.Column(db.String(200), nullable=False)
+    name = db.Column(db.String(300), nullable=False, index=True)
+    entity_data = db.Column(db.Text, nullable=False, default="{}")  # JSON
+
+    __table_args__ = (
+        db.UniqueConstraint("ruleset_id", "entity_type", "source_key",
+                            name="uq_ruleset_entity"),
+    )
+
+    def get_entity_data(self):
+        return json.loads(self.entity_data) if self.entity_data else {}
+
+    def to_dict(self, include_data=False):
+        result = {
+            "id": self.id,
+            "ruleset_id": self.ruleset_id,
+            "entity_type": self.entity_type,
+            "source_key": self.source_key,
+            "name": self.name,
+        }
+        if include_data:
+            result["entity_data"] = self.get_entity_data()
+        return result
