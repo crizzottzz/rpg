@@ -181,9 +181,20 @@ This workflow is compatible with GitHub spec-kit methodology.
 
 ### Git Workflow
 
-- Feature branches for each spec'd feature.
-- Merge to `main` when complete.
-- Squash migrations before merging when applicable.
+- **Never commit directly to `main`.** All work happens on branches.
+- **Branch naming:**
+  - `feature/<name>` — new functionality (e.g., `feature/theme-system`)
+  - `bugfix/<name>` — bug fixes (e.g., `bugfix/token-refresh-loop`)
+  - `chore/<name>` — tooling, config, docs, refactoring (e.g., `chore/env-parameterization`)
+- Merge to `main` when complete. Squash migrations before merging when applicable.
+- **Conventional Commits** for all commit messages:
+  - `feat: add theme provider and CSS custom properties`
+  - `fix: prevent token refresh loop on expired sessions`
+  - `refactor: extract overlay merging into service layer`
+  - `chore: add .env.example files`
+  - `docs: update README with setup instructions`
+  - Scope is optional but encouraged: `feat(characters): add ability score validation`
+  - Breaking changes: `feat!: replace entity renderers with schema-driven UI`
 
 ### Specs Directory
 
