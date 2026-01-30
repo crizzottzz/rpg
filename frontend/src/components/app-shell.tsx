@@ -1,6 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import { BookOpen, Swords, Users, Map, LogOut } from 'lucide-react';
-import { useAuthStore } from '../stores/authStore';
+import { useAuthStore } from '../stores/auth-store';
 
 const navItems = [
   { to: '/', icon: Map, label: 'Dashboard' },
