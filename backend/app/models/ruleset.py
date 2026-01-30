@@ -4,6 +4,8 @@ from app.extensions import db
 
 
 class Ruleset(db.Model):
+    """Top-level ruleset definition (e.g. D&D 5e SRD)."""
+
     __tablename__ = "rulesets"
 
     id = db.Column(db.Text, primary_key=True, default=lambda: str(uuid.uuid4()))
@@ -17,13 +19,16 @@ class Ruleset(db.Model):
                                cascade="all, delete-orphan")
     campaigns = db.relationship("Campaign", backref="ruleset", lazy="dynamic")
 
-    def get_source_config(self):
+    def get_source_config(self) -> dict:
+        """Parse the JSON source_config column."""
         return json.loads(self.source_config) if self.source_config else {}
 
-    def get_entity_types(self):
+    def get_entity_types(self) -> list[str]:
+        """Parse the JSON entity_types column."""
         return json.loads(self.entity_types) if self.entity_types else []
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
+        """Serialize to dictionary for JSON response."""
         return {
             "id": self.id,
             "key": self.key,
@@ -35,6 +40,8 @@ class Ruleset(db.Model):
 
 
 class RulesetEntity(db.Model):
+    """Individual entity within a ruleset (spell, creature, item, etc.)."""
+
     __tablename__ = "ruleset_entities"
 
     id = db.Column(db.Text, primary_key=True, default=lambda: str(uuid.uuid4()))
@@ -49,10 +56,16 @@ class RulesetEntity(db.Model):
                             name="uq_ruleset_entity"),
     )
 
-    def get_entity_data(self):
+    def get_entity_data(self) -> dict:
+        """Parse the JSON entity_data column."""
         return json.loads(self.entity_data) if self.entity_data else {}
 
-    def to_dict(self, include_data=False):
+    def to_dict(self, include_data: bool = False) -> dict:
+        """Serialize to dictionary for JSON response.
+
+        Args:
+            include_data: If True, includes the full entity_data blob.
+        """
         result = {
             "id": self.id,
             "ruleset_id": self.ruleset_id,

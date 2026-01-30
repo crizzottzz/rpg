@@ -5,6 +5,8 @@ from app.extensions import db
 
 
 class Campaign(db.Model):
+    """RPG campaign instance tied to a user and ruleset."""
+
     __tablename__ = "campaigns"
 
     id = db.Column(db.Text, primary_key=True, default=lambda: str(uuid.uuid4()))
@@ -22,10 +24,12 @@ class Campaign(db.Model):
                                  cascade="all, delete-orphan")
     overlays = db.relationship("UserOverlay", backref="campaign", lazy="dynamic")
 
-    def get_settings(self):
+    def get_settings(self) -> dict:
+        """Parse the JSON settings column."""
         return json.loads(self.settings) if self.settings else {}
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
+        """Serialize to dictionary for JSON response."""
         return {
             "id": self.id,
             "user_id": self.user_id,

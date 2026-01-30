@@ -19,10 +19,18 @@ ENTITY_CONFIGS = [
 ]
 
 
-def fetch_all_pages(endpoint: str, limit: int = 100) -> list:
-    """Fetch all pages from an Open5e v2 endpoint."""
-    results = []
-    url = f"{OPEN5E_BASE}{endpoint}?format=json&limit={limit}"
+def fetch_all_pages(endpoint: str, limit: int = 100) -> list[dict]:
+    """Fetch all pages from an Open5e v2 endpoint.
+
+    Args:
+        endpoint: API path relative to base URL (e.g. '/spells').
+        limit: Number of results per page.
+
+    Returns:
+        Aggregated list of result dictionaries from all pages.
+    """
+    results: list[dict] = []
+    url: str | None = f"{OPEN5E_BASE}{endpoint}?format=json&limit={limit}"
 
     while url:
         click.echo(f"  Fetching: {url}")
@@ -41,11 +49,10 @@ def fetch_all_pages(endpoint: str, limit: int = 100) -> list:
     return results
 
 
-def seed_open5e():
+def seed_open5e() -> None:
     """Seed D&D 5e SRD data from Open5e v2 API."""
     click.echo("Seeding D&D 5e data from Open5e v2 API...")
 
-    # Get or create the ruleset
     ruleset = Ruleset.query.filter_by(key="dnd-5e-srd").first()
     if not ruleset:
         ruleset = Ruleset(
@@ -70,7 +77,6 @@ def seed_open5e():
 
         for item in items:
             name = item.get(config["name_field"], "Unknown")
-            # Use the API's key/url as source_key
             source_key = item.get("key") or item.get("url", name)
 
             existing = RulesetEntity.query.filter_by(

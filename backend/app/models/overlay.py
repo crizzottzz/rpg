@@ -5,6 +5,8 @@ from app.extensions import db
 
 
 class UserOverlay(db.Model):
+    """User customization overlay for a ruleset entity."""
+
     __tablename__ = "user_overlays"
 
     id = db.Column(db.Text, primary_key=True, default=lambda: str(uuid.uuid4()))
@@ -19,10 +21,12 @@ class UserOverlay(db.Model):
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc),
                            onupdate=lambda: datetime.now(timezone.utc))
 
-    def get_overlay_data(self):
+    def get_overlay_data(self) -> dict:
+        """Parse the JSON overlay_data column."""
         return json.loads(self.overlay_data) if self.overlay_data else {}
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
+        """Serialize to dictionary for JSON response."""
         return {
             "id": self.id,
             "user_id": self.user_id,
