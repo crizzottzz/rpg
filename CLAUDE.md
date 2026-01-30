@@ -186,7 +186,7 @@ This workflow is compatible with GitHub spec-kit methodology.
   - `feature/<name>` — new functionality (e.g., `feature/theme-system`)
   - `bugfix/<name>` — bug fixes (e.g., `bugfix/token-refresh-loop`)
   - `chore/<name>` — tooling, config, docs, refactoring (e.g., `chore/env-parameterization`)
-- Merge to `main` when complete. Squash migrations before merging when applicable.
+- **Merge to `main`** when complete. Always use `--no-ff` (merge commits, no rebasing). Squash migrations before merging when applicable.
 - **Conventional Commits** for all commit messages:
   - `feat: add theme provider and CSS custom properties`
   - `fix: prevent token refresh loop on expired sessions`
