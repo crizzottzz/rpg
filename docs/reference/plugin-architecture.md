@@ -1,6 +1,6 @@
 # Plugin Architecture & the ABC Principle
 
-Restated from enterprise WxS patterns for this application.
+Adapted from prior enterprise architecture experience.
 
 ---
 

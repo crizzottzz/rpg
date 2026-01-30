@@ -91,6 +91,10 @@ Username: `dm`, Password: `dungeon_master_2025`
 
 ## Development Workflow
 
+### Branch Safety — MANDATORY
+
+**Before making any file changes, verify you are NOT on `main`.** If on `main`, create or switch to an appropriate branch first. No exceptions — this applies to docs, config, code, and any other tracked file. Use `git branch --show-current` to check. Branch naming follows `docs/standards/git.md`.
+
 ### Spec → Plan → Execute
 
 1. **Spec** — Feature described at high level. Markdown written in `specs/` with behavior, scope, and acceptance criteria.
