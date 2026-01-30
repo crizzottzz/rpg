@@ -1,20 +1,15 @@
-import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getEntity } from '../api/rulesets';
-import type { RulesetEntity } from '../types';
+import { useApiCache } from '../hooks/use-api-cache';
 import EntityRenderer from '../features/entities/entity-renderer';
 
 export default function EntityDetailPage() {
   const { id: rulesetId, entityId } = useParams<{ id: string; entityId: string }>();
-  const [entity, setEntity] = useState<RulesetEntity | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!rulesetId || !entityId) return;
-    getEntity(rulesetId, entityId)
-      .then(setEntity)
-      .finally(() => setLoading(false));
-  }, [rulesetId, entityId]);
+  const { data: entity, loading } = useApiCache(
+    getEntity,
+    [rulesetId!, entityId!],
+    { enabled: !!rulesetId && !!entityId },
+  );
 
   if (loading) return <div className="p-8 text-gray-400">Loading...</div>;
   if (!entity) return <div className="p-8 text-red-400">Entity not found</div>;

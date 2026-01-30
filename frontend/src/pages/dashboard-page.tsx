@@ -1,25 +1,14 @@
-import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { BookOpen, Swords, Users } from 'lucide-react';
 import { listRulesets } from '../api/rulesets';
 import { listCampaigns } from '../api/campaigns';
-import type { Ruleset, Campaign } from '../types';
+import { useApiCache } from '../hooks/use-api-cache';
 
 export default function DashboardPage() {
-  const [rulesets, setRulesets] = useState<Ruleset[]>([]);
-  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: rulesets, loading: loadingRulesets } = useApiCache(listRulesets);
+  const { data: campaigns, loading: loadingCampaigns } = useApiCache(listCampaigns);
 
-  useEffect(() => {
-    Promise.all([listRulesets(), listCampaigns()])
-      .then(([r, c]) => {
-        setRulesets(r);
-        setCampaigns(c);
-      })
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading) {
+  if (loadingRulesets || loadingCampaigns) {
     return <div className="p-8 text-gray-400">Loading...</div>;
   }
 
@@ -30,28 +19,28 @@ export default function DashboardPage() {
         <StatCard
           icon={<BookOpen className="text-amber-400" />}
           label="Rulesets"
-          value={rulesets.length}
+          value={(rulesets ?? []).length}
           to="/rulesets"
         />
         <StatCard
           icon={<Swords className="text-amber-400" />}
           label="Campaigns"
-          value={campaigns.length}
+          value={(campaigns ?? []).length}
           to="/campaigns"
         />
         <StatCard
           icon={<Users className="text-amber-400" />}
           label="Total Entities"
-          value={rulesets.reduce((sum, r) => sum + r.entity_count, 0)}
+          value={(rulesets ?? []).reduce((sum, r) => sum + r.entity_count, 0)}
           to="/rulesets"
         />
       </div>
 
-      {campaigns.length > 0 && (
+      {(campaigns ?? []).length > 0 && (
         <div>
           <h2 className="text-lg font-semibold text-gray-200 mb-3">Recent Campaigns</h2>
           <div className="space-y-2">
-            {campaigns.slice(0, 5).map((c) => (
+            {(campaigns ?? []).slice(0, 5).map((c) => (
               <Link
                 key={c.id}
                 to={`/campaigns/${c.id}`}

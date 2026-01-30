@@ -3,18 +3,22 @@ import { Link } from 'react-router-dom';
 import { Users } from 'lucide-react';
 import { listCampaigns } from '../api/campaigns';
 import { listCharacters } from '../api/characters';
-import type { Campaign, Character } from '../types';
+import { useApiCache } from '../hooks/use-api-cache';
+import type { Character } from '../types';
 
 interface CharacterWithCampaign extends Character {
   campaignName: string;
 }
 
 export default function CharactersPage() {
+  const { data: campaigns } = useApiCache(listCampaigns);
   const [characters, setCharacters] = useState<CharacterWithCampaign[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    listCampaigns().then(async (campaigns: Campaign[]) => {
+    if (!campaigns) return;
+    let cancelled = false;
+    (async () => {
       const all: CharacterWithCampaign[] = [];
       for (const campaign of campaigns) {
         const chars = await listCharacters(campaign.id);
@@ -22,10 +26,13 @@ export default function CharactersPage() {
           all.push({ ...c, campaignName: campaign.name });
         }
       }
-      setCharacters(all);
-      setLoading(false);
-    });
-  }, []);
+      if (!cancelled) {
+        setCharacters(all);
+        setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [campaigns]);
 
   if (loading) return <div className="p-8 text-gray-400">Loading...</div>;
 

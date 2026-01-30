@@ -1,54 +1,48 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getRuleset, listEntities } from '../api/rulesets';
-import type { Ruleset, RulesetEntity } from '../types';
+import { useApiCache } from '../hooks/use-api-cache';
 import { pluralize } from '../utils/pluralize';
 
 export default function RulesetDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const [ruleset, setRuleset] = useState<Ruleset | null>(null);
-  const [entities, setEntities] = useState<RulesetEntity[]>([]);
   const [activeType, setActiveType] = useState('');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
-  const [pages, setPages] = useState(0);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!id) return;
-    getRuleset(id).then((r) => {
-      setRuleset(r);
-      if (r.entity_types.length > 0) {
-        setActiveType(r.entity_types[0]);
-      }
-      setLoading(false);
-    });
-  }, [id]);
+  const { data: ruleset, loading: loadingRuleset } = useApiCache(
+    getRuleset,
+    [id!],
+    { enabled: !!id },
+  );
 
-  const fetchEntities = useCallback(async () => {
-    if (!id || !activeType) return;
-    const data = await listEntities(id, {
-      type: activeType,
-      search: search || undefined,
-      page,
-      per_page: 50,
-    });
-    setEntities(data.entities);
-    setTotal(data.total);
-    setPages(data.pages);
-  }, [id, activeType, search, page]);
+  // Auto-select first type once ruleset loads
+  if (ruleset && ruleset.entity_types.length > 0 && !activeType) {
+    setActiveType(ruleset.entity_types[0]);
+  }
 
-  useEffect(() => {
-    fetchEntities();
-  }, [fetchEntities]);
+  const { data: entityPage } = useApiCache(
+    listEntities,
+    [id!, { type: activeType, search: search || undefined, page, per_page: 50 }],
+    { enabled: !!id && !!activeType },
+  );
 
-  useEffect(() => {
+  const entities = entityPage?.entities ?? [];
+  const total = entityPage?.total ?? 0;
+  const pages = entityPage?.pages ?? 0;
+
+  const handleTypeChange = (type: string) => {
+    setActiveType(type);
     setPage(1);
-  }, [activeType, search]);
+  };
 
-  if (loading || !ruleset) return <div className="p-8 text-gray-400">Loading...</div>;
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    setPage(1);
+  };
+
+  if (loadingRuleset || !ruleset) return <div className="p-8 text-gray-400">Loading...</div>;
 
   return (
     <div className="p-8">
@@ -64,7 +58,7 @@ export default function RulesetDetailPage() {
         {ruleset.entity_types.map((type) => (
           <button
             key={type}
-            onClick={() => setActiveType(type)}
+            onClick={() => handleTypeChange(type)}
             className={`px-3 py-1.5 rounded-lg text-sm capitalize transition-colors ${
               type === activeType
                 ? 'bg-amber-400/10 text-amber-400 border border-amber-400/30'
@@ -83,7 +77,7 @@ export default function RulesetDetailPage() {
           type="text"
           placeholder={`Search ${pluralize(activeType)}...`}
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => handleSearchChange(e.target.value)}
           className="w-full pl-10 pr-4 py-2 bg-gray-900 border border-gray-800 rounded-lg text-gray-100 focus:outline-none focus:border-amber-400"
         />
       </div>

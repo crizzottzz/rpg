@@ -1,18 +1,10 @@
-import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { BookOpen } from 'lucide-react';
 import { listRulesets } from '../api/rulesets';
-import type { Ruleset } from '../types';
+import { useApiCache } from '../hooks/use-api-cache';
 
 export default function RulesetsPage() {
-  const [rulesets, setRulesets] = useState<Ruleset[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    listRulesets()
-      .then(setRulesets)
-      .finally(() => setLoading(false));
-  }, []);
+  const { data: rulesets, loading } = useApiCache(listRulesets);
 
   if (loading) return <div className="p-8 text-gray-400">Loading...</div>;
 
@@ -20,7 +12,7 @@ export default function RulesetsPage() {
     <div className="p-8 max-w-4xl">
       <h1 className="text-2xl font-bold text-gray-100 mb-6">Rulesets</h1>
       <div className="space-y-3">
-        {rulesets.map((r) => (
+        {(rulesets ?? []).map((r) => (
           <Link
             key={r.id}
             to={`/rulesets/${r.id}`}

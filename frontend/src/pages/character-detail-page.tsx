@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Trash2, Save } from 'lucide-react';
 import { getCharacter, updateCharacter, deleteCharacter } from '../api/characters';
+import { useApiCache, invalidateCache } from '../hooks/use-api-cache';
 import type { Character, AbilityScores } from '../types';
 
 const ABILITY_KEYS: (keyof AbilityScores)[] = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
@@ -14,32 +15,32 @@ function modifier(score: number): string {
 export default function CharacterDetailPage() {
   const { characterId } = useParams<{ characterId: string }>();
   const navigate = useNavigate();
-  const [character, setCharacter] = useState<Character | null>(null);
+  const { data: character, loading, refetch } = useApiCache(
+    getCharacter,
+    [characterId!],
+    { enabled: !!characterId },
+  );
   const [editing, setEditing] = useState(false);
   const [editData, setEditData] = useState<Partial<Character>>({});
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!characterId) return;
-    getCharacter(characterId)
-      .then((c) => {
-        setCharacter(c);
-        setEditData(c);
-      })
-      .finally(() => setLoading(false));
-  }, [characterId]);
+  // Sync editData when character loads or changes
+  if (character && Object.keys(editData).length === 0) {
+    setEditData(character);
+  }
 
   const handleSave = async () => {
     if (!characterId) return;
-    const updated = await updateCharacter(characterId, editData);
-    setCharacter(updated);
-    setEditData(updated);
+    await updateCharacter(characterId, editData);
+    invalidateCache('getCharacter');
+    invalidateCache('listCharacters');
+    refetch();
     setEditing(false);
   };
 
   const handleDelete = async () => {
     if (!characterId || !confirm('Delete this character?')) return;
     await deleteCharacter(characterId);
+    invalidateCache('listCharacters');
     navigate(`/campaigns/${character?.campaign_id}`);
   };
 

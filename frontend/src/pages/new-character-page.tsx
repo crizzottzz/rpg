@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getCampaign } from '../api/campaigns';
 import { listEntities } from '../api/rulesets';
 import { createCharacter } from '../api/characters';
-import type { Campaign, RulesetEntity, AbilityScores } from '../types';
+import { useApiCache, invalidateCache } from '../hooks/use-api-cache';
+import type { AbilityScores, PaginatedResponse, RulesetEntity } from '../types';
 
 const ABILITY_KEYS: (keyof AbilityScores)[] = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
 const ABILITY_LABELS: Record<keyof AbilityScores, string> = {
@@ -19,9 +20,26 @@ export default function NewCharacterPage() {
   const { campaignId } = useParams<{ campaignId: string }>();
   const navigate = useNavigate();
 
-  const [campaign, setCampaign] = useState<Campaign | null>(null);
-  const [species, setSpecies] = useState<RulesetEntity[]>([]);
-  const [classes, setClasses] = useState<RulesetEntity[]>([]);
+  const { data: campaign } = useApiCache(
+    getCampaign,
+    [campaignId!],
+    { enabled: !!campaignId },
+  );
+
+  const { data: speciesData } = useApiCache<PaginatedResponse<RulesetEntity>>(
+    listEntities,
+    [campaign?.ruleset_id!, { type: 'species', per_page: 100 }],
+    { enabled: !!campaign?.ruleset_id },
+  );
+
+  const { data: classData } = useApiCache<PaginatedResponse<RulesetEntity>>(
+    listEntities,
+    [campaign?.ruleset_id!, { type: 'class', per_page: 100 }],
+    { enabled: !!campaign?.ruleset_id },
+  );
+
+  const species = speciesData?.entities ?? [];
+  const classes = classData?.entities ?? [];
 
   const [name, setName] = useState('');
   const [charType, setCharType] = useState<'pc' | 'npc'>('pc');
@@ -32,19 +50,6 @@ export default function NewCharacterPage() {
     str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10,
   });
   const [submitting, setSubmitting] = useState(false);
-
-  useEffect(() => {
-    if (!campaignId) return;
-    getCampaign(campaignId).then((c) => {
-      setCampaign(c);
-      listEntities(c.ruleset_id, { type: 'species', per_page: 100 }).then((d) =>
-        setSpecies(d.entities)
-      );
-      listEntities(c.ruleset_id, { type: 'class', per_page: 100 }).then((d) =>
-        setClasses(d.entities)
-      );
-    });
-  }, [campaignId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,6 +71,7 @@ export default function NewCharacterPage() {
         },
         class_data: { name: selectedClass },
       });
+      invalidateCache('listCharacters');
       navigate(`/characters/${character.id}`);
     } finally {
       setSubmitting(false);
