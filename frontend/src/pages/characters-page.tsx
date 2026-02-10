@@ -34,14 +34,14 @@ export default function CharactersPage() {
     return () => { cancelled = true; };
   }, [campaigns]);
 
-  if (loading) return <div className="p-8 text-gray-400">Loading...</div>;
+  if (loading) return <div className="p-8 text-label">Loading...</div>;
 
   return (
     <div className="p-4 sm:p-8 max-w-4xl">
-      <h1 className="text-2xl font-bold text-gray-100 mb-6">All Characters</h1>
+      <h1 className="text-2xl font-bold text-heading mb-6">All Characters</h1>
 
       {characters.length === 0 ? (
-        <div className="text-center py-12 text-gray-500">
+        <div className="text-center py-12 text-muted">
           <Users className="mx-auto mb-3 opacity-50" size={40} />
           <p>No characters yet. Create a campaign first, then add characters.</p>
         </div>
@@ -51,15 +51,15 @@ export default function CharactersPage() {
             <Link
               key={c.id}
               to={`/characters/${c.id}`}
-              className="flex items-center justify-between p-4 bg-gray-900 border border-gray-800 rounded-lg hover:border-gray-700 transition-colors"
+              className="flex items-center justify-between p-4 bg-surface border border-edge rounded-lg hover:border-edge-hover transition-colors"
             >
               <div>
-                <span className="font-medium text-gray-100">{c.name}</span>
-                <span className="ml-3 text-sm text-gray-500">Level {c.level}</span>
+                <span className="font-medium text-heading">{c.name}</span>
+                <span className="ml-3 text-sm text-muted">Level {c.level}</span>
               </div>
               <div className="text-right">
-                <span className="text-xs text-gray-500">{c.campaignName}</span>
-                <span className="ml-2 text-xs text-gray-500 uppercase">{c.character_type}</span>
+                <span className="text-xs text-muted">{c.campaignName}</span>
+                <span className="ml-2 text-xs text-muted uppercase">{c.character_type}</span>
               </div>
             </Link>
           ))}

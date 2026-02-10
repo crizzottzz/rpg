@@ -26,25 +26,25 @@ export default function CampaignDetailPage() {
     navigate('/campaigns');
   };
 
-  if (loadingCampaign || loadingChars) return <div className="p-8 text-gray-400">Loading...</div>;
-  if (!campaign) return <div className="p-8 text-red-400">Campaign not found</div>;
+  if (loadingCampaign || loadingChars) return <div className="p-8 text-label">Loading...</div>;
+  if (!campaign) return <div className="p-8 text-danger">Campaign not found</div>;
 
   return (
     <div className="p-4 sm:p-8 max-w-4xl">
-      <Link to="/campaigns" className="text-sm text-gray-500 hover:text-gray-300">
+      <Link to="/campaigns" className="text-sm text-muted hover:text-content">
         &larr; Campaigns
       </Link>
       <div className="flex items-start justify-between mt-1 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-100">{campaign.name}</h1>
+          <h1 className="text-2xl font-bold text-heading">{campaign.name}</h1>
           {campaign.description && (
-            <p className="text-gray-400 mt-1">{campaign.description}</p>
+            <p className="text-label mt-1">{campaign.description}</p>
           )}
-          <span className="text-xs text-gray-500 capitalize">{campaign.status}</span>
+          <span className="text-xs text-muted capitalize">{campaign.status}</span>
         </div>
         <button
           onClick={handleDelete}
-          className="text-gray-500 hover:text-red-400 transition-colors p-2"
+          className="text-muted hover:text-danger transition-colors p-2"
           aria-label="Delete campaign"
         >
           <Trash2 size={20} />
@@ -52,10 +52,10 @@ export default function CampaignDetailPage() {
       </div>
 
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-gray-200">Characters</h2>
+        <h2 className="text-lg font-semibold text-content">Characters</h2>
         <Link
           to={`/campaigns/${id}/characters/new`}
-          className="flex items-center gap-2 px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-gray-950 font-semibold rounded-lg text-sm transition-colors"
+          className="flex items-center gap-2 px-3 py-1.5 bg-accent-bold hover:bg-accent text-accent-fg font-semibold rounded-lg text-sm transition-colors"
         >
           <Plus size={16} />
           Add Character
@@ -63,7 +63,7 @@ export default function CampaignDetailPage() {
       </div>
 
       {(characters ?? []).length === 0 ? (
-        <div className="text-center py-12 text-gray-500">
+        <div className="text-center py-12 text-muted">
           <Users className="mx-auto mb-3 opacity-50" size={40} />
           <p>No characters yet.</p>
         </div>
@@ -73,18 +73,18 @@ export default function CampaignDetailPage() {
             <Link
               key={c.id}
               to={`/characters/${c.id}`}
-              className="flex items-center justify-between p-4 bg-gray-900 border border-gray-800 rounded-lg hover:border-gray-700 transition-colors"
+              className="flex items-center justify-between p-4 bg-surface border border-edge rounded-lg hover:border-edge-hover transition-colors"
             >
               <div>
-                <span className="font-medium text-gray-100">{c.name}</span>
-                <span className="ml-3 text-sm text-gray-500">
+                <span className="font-medium text-heading">{c.name}</span>
+                <span className="ml-3 text-sm text-muted">
                   Level {c.level} {c.core_data?.species || ''}{' '}
                   {typeof c.class_data === 'object' && c.class_data !== null
                     ? String((c.class_data as Record<string, unknown>).name ?? '')
                     : ''}
                 </span>
               </div>
-              <span className="text-xs text-gray-500 uppercase">{c.character_type}</span>
+              <span className="text-xs text-muted uppercase">{c.character_type}</span>
             </Link>
           ))}
         </div>

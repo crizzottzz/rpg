@@ -123,3 +123,13 @@ Future: user_preferences (theme, settings)
 ## Frontend Stack
 
 Vite 7, React 19, TypeScript, React Router v7, Zustand, Axios, Tailwind CSS v4, React Hook Form + Zod, Lucide React
+
+## Session Notes
+
+### Voice Interaction
+
+The user often enables spoken responses via a reverse SSH tunnel. **After context compaction, re-check the parent CLAUDE.md for voice interaction instructions** — the speak-chat-speak pattern, TTS via `curl -s --connect-timeout 2 -X POST -d "message" http://localhost:7777`, and rules about when to use it. This note exists because compaction tends to lose this context.
+
+### Theming — Current State
+
+Theme tokens are defined in `frontend/src/index.css` via Tailwind v4's `@theme` directive. All components use semantic token utilities (`bg-surface`, `text-heading`, etc.) — no hardcoded color classes. At runtime, overriding `--color-*` custom properties on `:root` via JavaScript will re-theme the entire app instantly. The DB → localStorage → default cascade and theme provider/store are not yet implemented.

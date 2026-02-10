@@ -60,12 +60,12 @@ export default function GenericRenderer({ data }: GenericRendererProps) {
       {richTextFields.map((f) => (
         <div
           key={f.key}
-          className="bg-gray-900 border border-gray-800 rounded-lg p-4"
+          className="bg-surface border border-edge rounded-lg p-4"
         >
-          <h3 className="text-sm font-semibold text-gray-400 mb-2">
+          <h3 className="text-sm font-semibold text-label mb-2">
             {formatLabel(f.key)}
           </h3>
-          <div className="text-gray-200 text-sm">
+          <div className="text-content text-sm">
             {renderMarkdown(String(f.value))}
           </div>
         </div>
@@ -125,16 +125,16 @@ function DetailSection({
 
   return (
     <div>
-      <h3 className="text-sm font-semibold text-gray-400 mb-2">{label}</h3>
-      <div className="border border-gray-800 rounded-lg p-4 space-y-3">
+      <h3 className="text-sm font-semibold text-label mb-2">{label}</h3>
+      <div className="border border-edge rounded-lg p-4 space-y-3">
         {inner.map((f) => {
           if (HEADER_SHAPES.has(f.shape)) {
             return (
               <div key={f.key} className="flex gap-2">
-                <span className="text-xs text-gray-500 min-w-[100px]">
+                <span className="text-xs text-muted min-w-[100px]">
                   {formatLabel(f.key)}
                 </span>
-                <span className="text-gray-200 text-sm">
+                <span className="text-content text-sm">
                   {resolveDisplayValue(f.value, f.shape)}
                 </span>
               </div>
@@ -143,10 +143,10 @@ function DetailSection({
           if (f.shape === 'rich_text') {
             return (
               <div key={f.key}>
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-muted">
                   {formatLabel(f.key)}
                 </span>
-                <div className="text-gray-200 text-sm mt-1">
+                <div className="text-content text-sm mt-1">
                   {renderMarkdown(String(f.value))}
                 </div>
               </div>
@@ -175,16 +175,16 @@ function CollapsibleRaw({
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="bg-gray-900 border border-gray-800 rounded-lg p-3">
+    <div className="bg-surface border border-edge rounded-lg p-3">
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="text-xs text-gray-500 hover:text-gray-300 cursor-pointer"
+        className="text-xs text-muted hover:text-content cursor-pointer"
       >
         {label} {open ? '▾' : '▸'}
       </button>
       {open && (
-        <pre className="text-gray-400 text-xs mt-2 overflow-x-auto whitespace-pre-wrap">
+        <pre className="text-label text-xs mt-2 overflow-x-auto whitespace-pre-wrap">
           {JSON.stringify(value, null, 2)}
         </pre>
       )}

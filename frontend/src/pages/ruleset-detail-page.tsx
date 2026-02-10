@@ -42,15 +42,15 @@ export default function RulesetDetailPage() {
     setPage(1);
   };
 
-  if (loadingRuleset || !ruleset) return <div className="p-8 text-gray-400">Loading...</div>;
+  if (loadingRuleset || !ruleset) return <div className="p-8 text-label">Loading...</div>;
 
   return (
     <div className="p-4 sm:p-8">
       <div className="mb-6">
-        <Link to="/rulesets" className="text-sm text-gray-500 hover:text-gray-300">
+        <Link to="/rulesets" className="text-sm text-muted hover:text-content">
           &larr; Rulesets
         </Link>
-        <h1 className="text-2xl font-bold text-gray-100 mt-1">{ruleset.name}</h1>
+        <h1 className="text-2xl font-bold text-heading mt-1">{ruleset.name}</h1>
       </div>
 
       {/* Type tabs */}
@@ -61,8 +61,8 @@ export default function RulesetDetailPage() {
             onClick={() => handleTypeChange(type)}
             className={`px-3 py-1.5 rounded-lg text-sm capitalize transition-colors ${
               type === activeType
-                ? 'bg-amber-400/10 text-amber-400 border border-amber-400/30'
-                : 'text-gray-400 hover:bg-gray-800 border border-transparent'
+                ? 'bg-accent/10 text-accent border border-accent/30'
+                : 'text-label hover:bg-subtle border border-transparent'
             }`}
           >
             {pluralize(type)}
@@ -72,18 +72,18 @@ export default function RulesetDetailPage() {
 
       {/* Search */}
       <div className="relative mb-4">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={18} />
         <input
           type="text"
           placeholder={`Search ${pluralize(activeType)}...`}
           value={search}
           onChange={(e) => handleSearchChange(e.target.value)}
-          className="w-full pl-10 pr-4 py-2 bg-gray-900 border border-gray-800 rounded-lg text-gray-100 focus:outline-none focus:border-amber-400"
+          className="w-full pl-10 pr-4 py-2 bg-surface border border-edge rounded-lg text-heading focus:outline-none focus:border-accent"
         />
       </div>
 
       {/* Results count */}
-      <div className="text-sm text-gray-500 mb-3">
+      <div className="text-sm text-muted mb-3">
         {total.toLocaleString()} {pluralize(activeType)} found
       </div>
 
@@ -93,9 +93,9 @@ export default function RulesetDetailPage() {
           <Link
             key={entity.id}
             to={`/rulesets/${ruleset.id}/entities/${entity.id}`}
-            className="block px-4 py-2.5 bg-gray-900 border border-gray-800 rounded-lg hover:border-gray-700 transition-colors"
+            className="block px-4 py-2.5 bg-surface border border-edge rounded-lg hover:border-edge-hover transition-colors"
           >
-            <span className="text-gray-100">{entity.name}</span>
+            <span className="text-heading">{entity.name}</span>
           </Link>
         ))}
       </div>
@@ -106,17 +106,17 @@ export default function RulesetDetailPage() {
           <button
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page <= 1}
-            className="p-2 text-gray-400 hover:text-gray-200 disabled:opacity-30"
+            className="p-2 text-label hover:text-content disabled:opacity-30"
           >
             <ChevronLeft size={20} />
           </button>
-          <span className="text-sm text-gray-400">
+          <span className="text-sm text-label">
             Page {page} of {pages}
           </span>
           <button
             onClick={() => setPage((p) => Math.min(pages, p + 1))}
             disabled={page >= pages}
-            className="p-2 text-gray-400 hover:text-gray-200 disabled:opacity-30"
+            className="p-2 text-label hover:text-content disabled:opacity-30"
           >
             <ChevronRight size={20} />
           </button>

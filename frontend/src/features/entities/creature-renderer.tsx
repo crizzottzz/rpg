@@ -44,10 +44,10 @@ export default function CreatureRenderer({ data }: CreatureRendererProps) {
           return (
             <div
               key={key}
-              className="bg-gray-900 border border-gray-800 rounded-lg p-2 text-center"
+              className="bg-surface border border-edge rounded-lg p-2 text-center"
             >
-              <div className="text-xs text-gray-500">{label}</div>
-              <div className="text-lg font-bold text-gray-100">
+              <div className="text-xs text-muted">{label}</div>
+              <div className="text-lg font-bold text-heading">
                 {String(score ?? '—')}
               </div>
             </div>
@@ -56,16 +56,16 @@ export default function CreatureRenderer({ data }: CreatureRendererProps) {
       </div>
 
       {Array.isArray(data.actions) && data.actions.length > 0 && (
-        <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
-          <h3 className="text-sm font-semibold text-gray-400 mb-2">Actions</h3>
+        <div className="bg-surface border border-edge rounded-lg p-4">
+          <h3 className="text-sm font-semibold text-label mb-2">Actions</h3>
           <div className="space-y-2">
             {(data.actions as Array<Record<string, unknown>>).map((a, i) => (
               <div key={i}>
-                <span className="font-medium text-amber-400">
+                <span className="font-medium text-accent">
                   {String(a.name ?? '')}
                 </span>
                 {!!a.desc && (
-                  <div className="text-gray-300 text-sm ml-0 mt-1">
+                  <div className="text-content text-sm ml-0 mt-1">
                     {renderMarkdown(String(a.desc))}
                   </div>
                 )}
@@ -76,16 +76,16 @@ export default function CreatureRenderer({ data }: CreatureRendererProps) {
       )}
 
       {Array.isArray(data.traits) && data.traits.length > 0 && (
-        <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
-          <h3 className="text-sm font-semibold text-gray-400 mb-2">Traits</h3>
+        <div className="bg-surface border border-edge rounded-lg p-4">
+          <h3 className="text-sm font-semibold text-label mb-2">Traits</h3>
           <div className="space-y-2">
             {(data.traits as Array<Record<string, unknown>>).map((t, i) => (
               <div key={i}>
-                <span className="font-medium text-amber-400">
+                <span className="font-medium text-accent">
                   {String(t.name ?? '')}
                 </span>
                 {!!t.desc && (
-                  <div className="text-gray-300 text-sm mt-1">
+                  <div className="text-content text-sm mt-1">
                     {renderMarkdown(String(t.desc))}
                   </div>
                 )}
