@@ -31,21 +31,21 @@ export default function SpellRenderer({ data }: SpellRendererProps) {
         <InfoBox label="Ritual" value={data.ritual ? 'Yes' : 'No'} />
       </div>
       {!!data.desc && (
-        <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
-          <h3 className="text-sm font-semibold text-gray-400 mb-2">
+        <div className="bg-surface border border-edge rounded-lg p-4">
+          <h3 className="text-sm font-semibold text-label mb-2">
             Description
           </h3>
-          <div className="text-gray-200 text-sm">
+          <div className="text-content text-sm">
             {renderMarkdown(String(data.desc))}
           </div>
         </div>
       )}
       {!!data.higher_level && (
-        <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
-          <h3 className="text-sm font-semibold text-gray-400 mb-2">
+        <div className="bg-surface border border-edge rounded-lg p-4">
+          <h3 className="text-sm font-semibold text-label mb-2">
             At Higher Levels
           </h3>
-          <div className="text-gray-200 text-sm">
+          <div className="text-content text-sm">
             {renderMarkdown(String(data.higher_level))}
           </div>
         </div>

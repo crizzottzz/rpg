@@ -21,23 +21,23 @@ export default function AppShell() {
   }, [location.pathname]);
 
   return (
-    <div className="flex h-dvh bg-gray-950 text-gray-100">
+    <div className="flex h-dvh bg-page text-heading">
       {/* Mobile top bar */}
-      <div className="fixed top-0 left-0 right-0 z-30 flex items-center h-14 px-4 bg-gray-900 border-b border-gray-800 lg:hidden">
+      <div className="fixed top-0 left-0 right-0 z-30 flex items-center h-14 px-4 bg-surface border-b border-edge lg:hidden">
         <button
           onClick={() => setSidebarOpen(true)}
-          className="p-2 -ml-2 text-gray-400 hover:text-gray-200 transition-colors"
+          className="p-2 -ml-2 text-label hover:text-content transition-colors"
           aria-label="Open menu"
         >
           <Menu size={22} />
         </button>
-        <h1 className="ml-2 text-lg font-bold text-amber-400">RPG Manager</h1>
+        <h1 className="ml-2 text-lg font-bold text-accent">RPG Manager</h1>
       </div>
 
       {/* Backdrop */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/60 lg:hidden"
+          className="fixed inset-0 z-40 bg-overlay lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -45,17 +45,17 @@ export default function AppShell() {
       {/* Sidebar */}
       <aside
         className={`
-          fixed inset-y-0 left-0 z-50 w-64 bg-gray-900 border-r border-gray-800 flex flex-col
+          fixed inset-y-0 left-0 z-50 w-64 bg-surface border-r border-edge flex flex-col
           transform transition-transform duration-200 ease-in-out
           lg:relative lg:translate-x-0
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         `}
       >
-        <div className="flex items-center justify-between p-4 border-b border-gray-800">
-          <h1 className="text-xl font-bold text-amber-400">RPG Manager</h1>
+        <div className="flex items-center justify-between p-4 border-b border-edge">
+          <h1 className="text-xl font-bold text-accent">RPG Manager</h1>
           <button
             onClick={() => setSidebarOpen(false)}
-            className="p-1 text-gray-500 hover:text-gray-300 transition-colors lg:hidden"
+            className="p-1 text-muted hover:text-content transition-colors lg:hidden"
             aria-label="Close menu"
           >
             <X size={20} />
@@ -70,8 +70,8 @@ export default function AppShell() {
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
                   isActive
-                    ? 'bg-amber-400/10 text-amber-400'
-                    : 'text-gray-400 hover:bg-gray-800 hover:text-gray-200'
+                    ? 'bg-accent/10 text-accent'
+                    : 'text-label hover:bg-subtle hover:text-content'
                 }`
               }
             >
@@ -80,12 +80,12 @@ export default function AppShell() {
             </NavLink>
           ))}
         </nav>
-        <div className="p-4 border-t border-gray-800">
+        <div className="p-4 border-t border-edge">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-400">{user?.username}</span>
+            <span className="text-sm text-label">{user?.username}</span>
             <button
               onClick={logout}
-              className="text-gray-500 hover:text-gray-300 transition-colors"
+              className="text-muted hover:text-content transition-colors"
               title="Logout"
               aria-label="Logout"
             >

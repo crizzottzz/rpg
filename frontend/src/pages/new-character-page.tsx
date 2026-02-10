@@ -124,25 +124,25 @@ export default function NewCharacterPage() {
     }
   };
 
-  if (!campaign) return <div className="p-8 text-gray-400">Loading...</div>;
+  if (!campaign) return <div className="p-8 text-label">Loading...</div>;
 
   return (
     <div className="p-4 sm:p-8 max-w-xl">
       <Link
         to={`/campaigns/${campaignId}`}
-        className="text-sm text-gray-500 hover:text-gray-300"
+        className="text-sm text-muted hover:text-content"
       >
         &larr; {campaign.name}
       </Link>
-      <h1 className="text-2xl font-bold text-gray-100 mt-1 mb-6">New Character</h1>
+      <h1 className="text-2xl font-bold text-heading mt-1 mb-6">New Character</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm text-gray-400 mb-1">Name</label>
+          <label className="block text-sm text-label mb-1">Name</label>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-gray-100 focus:outline-none focus:border-amber-400"
+            className="w-full px-3 py-2 bg-surface border border-edge rounded-lg text-heading focus:outline-none focus:border-accent"
             autoFocus
             required
           />
@@ -150,35 +150,35 @@ export default function NewCharacterPage() {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Type</label>
+            <label className="block text-sm text-label mb-1">Type</label>
             <select
               value={charType}
               onChange={(e) => setCharType(e.target.value as 'pc' | 'npc')}
-              className="w-full px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-gray-100 focus:outline-none focus:border-amber-400"
+              className="w-full px-3 py-2 bg-surface border border-edge rounded-lg text-heading focus:outline-none focus:border-accent"
             >
               <option value="pc">Player Character</option>
               <option value="npc">NPC</option>
             </select>
           </div>
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Level</label>
+            <label className="block text-sm text-label mb-1">Level</label>
             <NumericInput
               value={level}
               onChange={setLevel}
               min={1}
               max={20}
-              className="w-full px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-gray-100 focus:outline-none focus:border-amber-400"
+              className="w-full px-3 py-2 bg-surface border border-edge rounded-lg text-heading focus:outline-none focus:border-accent"
             />
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Species</label>
+            <label className="block text-sm text-label mb-1">Species</label>
             <select
               value={selectedSpecies}
               onChange={(e) => setSelectedSpecies(e.target.value)}
-              className="w-full px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-gray-100 focus:outline-none focus:border-amber-400"
+              className="w-full px-3 py-2 bg-surface border border-edge rounded-lg text-heading focus:outline-none focus:border-accent"
             >
               <option value="">Select...</option>
               {species.map((s) => (
@@ -189,11 +189,11 @@ export default function NewCharacterPage() {
             </select>
           </div>
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Class</label>
+            <label className="block text-sm text-label mb-1">Class</label>
             <select
               value={selectedClass}
               onChange={(e) => setSelectedClass(e.target.value)}
-              className="w-full px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-gray-100 focus:outline-none focus:border-amber-400"
+              className="w-full px-3 py-2 bg-surface border border-edge rounded-lg text-heading focus:outline-none focus:border-accent"
             >
               <option value="">Select...</option>
               {classes.map((c) => (
@@ -206,11 +206,11 @@ export default function NewCharacterPage() {
         </div>
 
         <div>
-          <label className="block text-sm text-gray-400 mb-2">Ability Scores</label>
+          <label className="block text-sm text-label mb-2">Ability Scores</label>
           <div className="grid grid-cols-3 gap-3">
             {ABILITY_KEYS.map((key) => (
               <div key={key}>
-                <label className="block text-xs text-gray-500 mb-1">
+                <label className="block text-xs text-muted mb-1">
                   {ABILITY_LABELS[key]}
                 </label>
                 <NumericInput
@@ -218,7 +218,7 @@ export default function NewCharacterPage() {
                   onChange={(v) => setScores((prev) => ({ ...prev, [key]: v }))}
                   min={1}
                   max={30}
-                  className="w-full px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-gray-100 text-center focus:outline-none focus:border-amber-400"
+                  className="w-full px-3 py-2 bg-surface border border-edge rounded-lg text-heading text-center focus:outline-none focus:border-accent"
                 />
               </div>
             ))}
@@ -228,7 +228,7 @@ export default function NewCharacterPage() {
         <button
           type="submit"
           disabled={submitting || !name.trim()}
-          className="w-full py-2 bg-amber-500 hover:bg-amber-400 text-gray-950 font-semibold rounded-lg transition-colors disabled:opacity-50"
+          className="w-full py-2 bg-accent-bold hover:bg-accent text-accent-fg font-semibold rounded-lg transition-colors disabled:opacity-50"
         >
           {submitting ? 'Creating...' : 'Create Character'}
         </button>

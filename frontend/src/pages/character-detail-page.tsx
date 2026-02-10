@@ -114,8 +114,8 @@ export default function CharacterDetailPage() {
     navigate(`/campaigns/${character?.campaign_id}`);
   };
 
-  if (loading) return <div className="p-4 sm:p-8 text-gray-400">Loading...</div>;
-  if (!character) return <div className="p-4 sm:p-8 text-red-400">Character not found</div>;
+  if (loading) return <div className="p-4 sm:p-8 text-label">Loading...</div>;
+  if (!character) return <div className="p-4 sm:p-8 text-danger">Character not found</div>;
 
   const core = character.core_data;
   const scores = editing
@@ -124,13 +124,13 @@ export default function CharacterDetailPage() {
   const classData = character.class_data as Record<string, unknown>;
 
   const inputClass =
-    'w-full px-2 py-1 bg-gray-800 border border-gray-700 rounded text-gray-100 text-center focus:outline-none focus:border-amber-400';
+    'w-full px-2 py-1 bg-subtle border border-edge-hover rounded text-heading text-center focus:outline-none focus:border-accent';
 
   return (
     <div className="p-4 sm:p-8 max-w-4xl">
       <Link
         to={`/campaigns/${character.campaign_id}`}
-        className="text-sm text-gray-500 hover:text-gray-300"
+        className="text-sm text-muted hover:text-content"
       >
         &larr; Campaign
       </Link>
@@ -141,12 +141,12 @@ export default function CharacterDetailPage() {
               type="text"
               value={editName}
               onChange={(e) => setEditName(e.target.value)}
-              className="w-full text-2xl font-bold text-gray-100 bg-gray-800 border border-gray-700 rounded px-2 py-1 focus:outline-none focus:border-amber-400"
+              className="w-full text-2xl font-bold text-heading bg-subtle border border-edge-hover rounded px-2 py-1 focus:outline-none focus:border-accent"
             />
           ) : (
-            <h1 className="text-2xl font-bold text-gray-100">{character.name}</h1>
+            <h1 className="text-2xl font-bold text-heading">{character.name}</h1>
           )}
-          <p className="text-gray-400 mt-1">
+          <p className="text-label mt-1">
             {editing ? (
               <span className="inline-flex items-center gap-2">
                 Level
@@ -155,7 +155,7 @@ export default function CharacterDetailPage() {
                   onChange={setEditLevel}
                   min={1}
                   max={20}
-                  className="w-14 px-2 py-0.5 bg-gray-800 border border-gray-700 rounded text-gray-100 text-center focus:outline-none focus:border-amber-400"
+                  className="w-14 px-2 py-0.5 bg-subtle border border-edge-hover rounded text-heading text-center focus:outline-none focus:border-accent"
                 />
               </span>
             ) : (
@@ -170,14 +170,14 @@ export default function CharacterDetailPage() {
             <>
               <button
                 onClick={handleSave}
-                className="flex items-center gap-1 px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-gray-950 font-semibold rounded-lg text-sm transition-colors"
+                className="flex items-center gap-1 px-3 py-1.5 bg-accent-bold hover:bg-accent text-accent-fg font-semibold rounded-lg text-sm transition-colors"
               >
                 <Save size={16} />
                 Save
               </button>
               <button
                 onClick={handleCancel}
-                className="flex items-center gap-1 px-3 py-1.5 text-gray-400 hover:text-gray-200 border border-gray-700 rounded-lg text-sm transition-colors"
+                className="flex items-center gap-1 px-3 py-1.5 text-label hover:text-content border border-edge-hover rounded-lg text-sm transition-colors"
               >
                 <X size={16} />
                 Cancel
@@ -186,14 +186,14 @@ export default function CharacterDetailPage() {
           ) : (
             <button
               onClick={() => setEditing(true)}
-              className="px-3 py-1.5 text-gray-400 hover:text-gray-200 border border-gray-700 rounded-lg text-sm transition-colors"
+              className="px-3 py-1.5 text-label hover:text-content border border-edge-hover rounded-lg text-sm transition-colors"
             >
               Edit
             </button>
           )}
           <button
             onClick={handleDelete}
-            className="text-gray-500 hover:text-red-400 transition-colors p-2"
+            className="text-muted hover:text-danger transition-colors p-2"
             aria-label="Delete character"
           >
             <Trash2 size={18} />
@@ -206,9 +206,9 @@ export default function CharacterDetailPage() {
         {ABILITY_KEYS.map((key) => (
           <div
             key={key}
-            className="bg-gray-900 border border-gray-800 rounded-lg p-3 text-center"
+            className="bg-surface border border-edge rounded-lg p-3 text-center"
           >
-            <div className="text-xs text-gray-500 uppercase">{key}</div>
+            <div className="text-xs text-muted uppercase">{key}</div>
             {editing ? (
               <NumericInput
                 value={scores[key]}
@@ -218,9 +218,9 @@ export default function CharacterDetailPage() {
                 className={inputClass}
               />
             ) : (
-              <div className="text-2xl font-bold text-gray-100">{scores[key]}</div>
+              <div className="text-2xl font-bold text-heading">{scores[key]}</div>
             )}
-            <div className="text-sm text-amber-400">{modifier(scores[key])}</div>
+            <div className="text-sm text-accent">{modifier(scores[key])}</div>
           </div>
         ))}
       </div>
@@ -239,9 +239,9 @@ export default function CharacterDetailPage() {
       {/* Equipment */}
       {character.equipment.length > 0 && (
         <div className="mb-6">
-          <h2 className="text-lg font-semibold text-gray-200 mb-3">Equipment</h2>
-          <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
-            <ul className="space-y-1 text-gray-300">
+          <h2 className="text-lg font-semibold text-content mb-3">Equipment</h2>
+          <div className="bg-surface border border-edge rounded-lg p-4">
+            <ul className="space-y-1 text-content">
               {character.equipment.map((item, i) => (
                 <li key={i}>
                   {typeof item === 'string' ? item : JSON.stringify(item)}
@@ -255,9 +255,9 @@ export default function CharacterDetailPage() {
       {/* Spells */}
       {character.spells.length > 0 && (
         <div>
-          <h2 className="text-lg font-semibold text-gray-200 mb-3">Spells</h2>
-          <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
-            <ul className="space-y-1 text-gray-300">
+          <h2 className="text-lg font-semibold text-content mb-3">Spells</h2>
+          <div className="bg-surface border border-edge rounded-lg p-4">
+            <ul className="space-y-1 text-content">
               {character.spells.map((spell, i) => (
                 <li key={i}>
                   {typeof spell === 'string' ? spell : JSON.stringify(spell)}
@@ -273,9 +273,9 @@ export default function CharacterDetailPage() {
 
 function StatBox({ label, value }: { label: string; value: string }) {
   return (
-    <div className="bg-gray-900 border border-gray-800 rounded-lg p-3 text-center">
-      <div className="text-xs text-gray-500">{label}</div>
-      <div className="text-lg font-bold text-gray-100">{value}</div>
+    <div className="bg-surface border border-edge rounded-lg p-3 text-center">
+      <div className="text-xs text-muted">{label}</div>
+      <div className="text-lg font-bold text-heading">{value}</div>
     </div>
   );
 }

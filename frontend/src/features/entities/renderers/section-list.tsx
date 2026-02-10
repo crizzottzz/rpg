@@ -14,7 +14,7 @@ export default function SectionList({ label, items, variant }: SectionListProps)
 
   return (
     <div>
-      <h3 className="text-sm font-semibold text-gray-400 mb-2">{label}</h3>
+      <h3 className="text-sm font-semibold text-label mb-2">{label}</h3>
       <div className="space-y-3">
         {items.map((item, i) => (
           <SectionItem key={i} item={item} variant={variant} />
@@ -39,19 +39,19 @@ function SectionItem({
   );
 
   return (
-    <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
+    <div className="bg-surface border border-edge rounded-lg p-4">
       {name && (
-        <h4 className="font-medium text-amber-400 mb-1">{name}</h4>
+        <h4 className="font-medium text-accent mb-1">{name}</h4>
       )}
       {desc && (
-        <div className="text-gray-300 text-sm">{renderMarkdown(desc)}</div>
+        <div className="text-content text-sm">{renderMarkdown(desc)}</div>
       )}
       {metaEntries.length > 0 && (
         <div className="flex flex-wrap gap-2 mt-2">
           {metaEntries.map(([key, value]) => (
             <span
               key={key}
-              className="text-xs bg-gray-800 text-gray-400 px-2 py-0.5 rounded"
+              className="text-xs bg-subtle text-label px-2 py-0.5 rounded"
             >
               {formatLabel(key)}: {formatMetaValue(value)}
             </span>

@@ -36,25 +36,25 @@ export default function NewCampaignPage() {
 
   return (
     <div className="p-4 sm:p-8 max-w-xl">
-      <h1 className="text-2xl font-bold text-gray-100 mb-6">New Campaign</h1>
+      <h1 className="text-2xl font-bold text-heading mb-6">New Campaign</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm text-gray-400 mb-1">Name</label>
+          <label className="block text-sm text-label mb-1">Name</label>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-gray-100 focus:outline-none focus:border-amber-400"
+            className="w-full px-3 py-2 bg-surface border border-edge rounded-lg text-heading focus:outline-none focus:border-accent"
             autoFocus
             required
           />
         </div>
         <div>
-          <label className="block text-sm text-gray-400 mb-1">Ruleset</label>
+          <label className="block text-sm text-label mb-1">Ruleset</label>
           <select
             value={rulesetId}
             onChange={(e) => setRulesetId(e.target.value)}
-            className="w-full px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-gray-100 focus:outline-none focus:border-amber-400"
+            className="w-full px-3 py-2 bg-surface border border-edge rounded-lg text-heading focus:outline-none focus:border-accent"
           >
             {(rulesets ?? []).map((r) => (
               <option key={r.id} value={r.id}>
@@ -64,18 +64,18 @@ export default function NewCampaignPage() {
           </select>
         </div>
         <div>
-          <label className="block text-sm text-gray-400 mb-1">Description</label>
+          <label className="block text-sm text-label mb-1">Description</label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
-            className="w-full px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-gray-100 focus:outline-none focus:border-amber-400"
+            className="w-full px-3 py-2 bg-surface border border-edge rounded-lg text-heading focus:outline-none focus:border-accent"
           />
         </div>
         <button
           type="submit"
           disabled={submitting || !name.trim()}
-          className="w-full py-2 bg-amber-500 hover:bg-amber-400 text-gray-950 font-semibold rounded-lg transition-colors disabled:opacity-50"
+          className="w-full py-2 bg-accent-bold hover:bg-accent text-accent-fg font-semibold rounded-lg transition-colors disabled:opacity-50"
         >
           {submitting ? 'Creating...' : 'Create Campaign'}
         </button>

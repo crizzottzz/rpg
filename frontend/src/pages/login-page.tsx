@@ -21,42 +21,42 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex items-center justify-center h-dvh bg-gray-950 px-4 overflow-hidden">
+    <div className="flex items-center justify-center h-dvh bg-page px-4 overflow-hidden">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-sm bg-gray-900 rounded-xl p-6 sm:p-8 border border-gray-800"
+        className="w-full max-w-sm bg-surface rounded-xl p-6 sm:p-8 border border-edge"
       >
-        <h1 className="text-2xl font-bold text-amber-400 mb-6 text-center">
+        <h1 className="text-2xl font-bold text-accent mb-6 text-center">
           RPG Manager
         </h1>
         {error && (
-          <div className="mb-4 p-3 bg-red-900/30 border border-red-800 rounded-lg text-red-400 text-sm">
+          <div className="mb-4 p-3 bg-danger-dark/30 border border-danger-edge rounded-lg text-danger text-sm">
             {error}
           </div>
         )}
         <div className="space-y-4">
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Username</label>
+            <label className="block text-sm text-label mb-1">Username</label>
             <input
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-100 focus:outline-none focus:border-amber-400"
+              className="w-full px-3 py-2 bg-subtle border border-edge-hover rounded-lg text-heading focus:outline-none focus:border-accent"
               autoFocus
             />
           </div>
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Password</label>
+            <label className="block text-sm text-label mb-1">Password</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-100 focus:outline-none focus:border-amber-400"
+              className="w-full px-3 py-2 bg-subtle border border-edge-hover rounded-lg text-heading focus:outline-none focus:border-accent"
             />
           </div>
           <button
             type="submit"
-            className="w-full py-2 bg-amber-500 hover:bg-amber-400 text-gray-950 font-semibold rounded-lg transition-colors"
+            className="w-full py-2 bg-accent-bold hover:bg-accent text-accent-fg font-semibold rounded-lg transition-colors"
           >
             Login
           </button>

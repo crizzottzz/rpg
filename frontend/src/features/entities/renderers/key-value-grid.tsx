@@ -16,7 +16,7 @@ export default function KeyValueGrid({ label, data }: KeyValueGridProps) {
 
   return (
     <div>
-      <h3 className="text-sm font-semibold text-gray-400 mb-2">{label}</h3>
+      <h3 className="text-sm font-semibold text-label mb-2">{label}</h3>
       <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
         {entries.map(([key, value]) => {
           const display =
@@ -26,10 +26,10 @@ export default function KeyValueGrid({ label, data }: KeyValueGridProps) {
           return (
             <div
               key={key}
-              className="bg-gray-900 border border-gray-800 rounded-lg p-2 text-center"
+              className="bg-surface border border-edge rounded-lg p-2 text-center"
             >
-              <div className="text-xs text-gray-500">{formatLabel(key)}</div>
-              <div className="text-lg font-bold text-gray-100">{display}</div>
+              <div className="text-xs text-muted">{formatLabel(key)}</div>
+              <div className="text-lg font-bold text-heading">{display}</div>
             </div>
           );
         })}
