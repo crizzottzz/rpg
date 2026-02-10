@@ -35,7 +35,7 @@ export default function NewCampaignPage() {
   };
 
   return (
-    <div className="p-8 max-w-xl">
+    <div className="p-4 sm:p-8 max-w-xl">
       <h1 className="text-2xl font-bold text-gray-100 mb-6">New Campaign</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>

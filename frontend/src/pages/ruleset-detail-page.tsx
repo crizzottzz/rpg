@@ -45,7 +45,7 @@ export default function RulesetDetailPage() {
   if (loadingRuleset || !ruleset) return <div className="p-8 text-gray-400">Loading...</div>;
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-8">
       <div className="mb-6">
         <Link to="/rulesets" className="text-sm text-gray-500 hover:text-gray-300">
           &larr; Rulesets

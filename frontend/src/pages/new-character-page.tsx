@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getCampaign } from '../api/campaigns';
 import { listEntities } from '../api/rulesets';
@@ -15,6 +15,52 @@ const ABILITY_LABELS: Record<keyof AbilityScores, string> = {
   wis: 'Wisdom',
   cha: 'Charisma',
 };
+
+function NumericInput({
+  value,
+  onChange,
+  min = 1,
+  max = 30,
+  className = '',
+}: {
+  value: number;
+  onChange: (v: number) => void;
+  min?: number;
+  max?: number;
+  className?: string;
+}) {
+  const [raw, setRaw] = useState(String(value));
+
+  useEffect(() => {
+    setRaw(String(value));
+  }, [value]);
+
+  return (
+    <input
+      type="text"
+      inputMode="numeric"
+      value={raw}
+      onChange={(e) => {
+        const v = e.target.value.replace(/[^0-9]/g, '');
+        setRaw(v);
+        if (v !== '') {
+          onChange(Math.min(max, Math.max(min, Number(v))));
+        }
+      }}
+      onBlur={() => {
+        if (raw === '' || isNaN(Number(raw))) {
+          setRaw(String(min));
+          onChange(min);
+        } else {
+          const clamped = Math.min(max, Math.max(min, Number(raw)));
+          setRaw(String(clamped));
+          onChange(clamped);
+        }
+      }}
+      className={className}
+    />
+  );
+}
 
 export default function NewCharacterPage() {
   const { campaignId } = useParams<{ campaignId: string }>();
@@ -81,7 +127,7 @@ export default function NewCharacterPage() {
   if (!campaign) return <div className="p-8 text-gray-400">Loading...</div>;
 
   return (
-    <div className="p-8 max-w-xl">
+    <div className="p-4 sm:p-8 max-w-xl">
       <Link
         to={`/campaigns/${campaignId}`}
         className="text-sm text-gray-500 hover:text-gray-300"
@@ -116,12 +162,11 @@ export default function NewCharacterPage() {
           </div>
           <div>
             <label className="block text-sm text-gray-400 mb-1">Level</label>
-            <input
-              type="number"
+            <NumericInput
+              value={level}
+              onChange={setLevel}
               min={1}
               max={20}
-              value={level}
-              onChange={(e) => setLevel(Number(e.target.value))}
               className="w-full px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-gray-100 focus:outline-none focus:border-amber-400"
             />
           </div>
@@ -168,14 +213,11 @@ export default function NewCharacterPage() {
                 <label className="block text-xs text-gray-500 mb-1">
                   {ABILITY_LABELS[key]}
                 </label>
-                <input
-                  type="number"
+                <NumericInput
+                  value={scores[key]}
+                  onChange={(v) => setScores((prev) => ({ ...prev, [key]: v }))}
                   min={1}
                   max={30}
-                  value={scores[key]}
-                  onChange={(e) =>
-                    setScores((prev) => ({ ...prev, [key]: Number(e.target.value) }))
-                  }
                   className="w-full px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-gray-100 text-center focus:outline-none focus:border-amber-400"
                 />
               </div>

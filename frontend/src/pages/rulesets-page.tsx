@@ -9,7 +9,7 @@ export default function RulesetsPage() {
   if (loading) return <div className="p-8 text-gray-400">Loading...</div>;
 
   return (
-    <div className="p-8 max-w-4xl">
+    <div className="p-4 sm:p-8 max-w-4xl">
       <h1 className="text-2xl font-bold text-gray-100 mb-6">Rulesets</h1>
       <div className="space-y-3">
         {(rulesets ?? []).map((r) => (

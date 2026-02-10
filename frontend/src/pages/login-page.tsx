@@ -21,10 +21,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-950">
+    <div className="flex items-center justify-center h-dvh bg-gray-950 px-4 overflow-hidden">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-sm bg-gray-900 rounded-xl p-8 border border-gray-800"
+        className="w-full max-w-sm bg-gray-900 rounded-xl p-6 sm:p-8 border border-gray-800"
       >
         <h1 className="text-2xl font-bold text-amber-400 mb-6 text-center">
           RPG Manager

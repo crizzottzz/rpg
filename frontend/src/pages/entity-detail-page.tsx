@@ -15,7 +15,7 @@ export default function EntityDetailPage() {
   if (!entity) return <div className="p-8 text-red-400">Entity not found</div>;
 
   return (
-    <div className="p-8 max-w-4xl">
+    <div className="p-4 sm:p-8 max-w-4xl">
       <Link
         to={`/rulesets/${rulesetId}`}
         className="text-sm text-gray-500 hover:text-gray-300"

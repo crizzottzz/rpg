@@ -30,7 +30,7 @@ export default function CampaignDetailPage() {
   if (!campaign) return <div className="p-8 text-red-400">Campaign not found</div>;
 
   return (
-    <div className="p-8 max-w-4xl">
+    <div className="p-4 sm:p-8 max-w-4xl">
       <Link to="/campaigns" className="text-sm text-gray-500 hover:text-gray-300">
         &larr; Campaigns
       </Link>
@@ -45,7 +45,7 @@ export default function CampaignDetailPage() {
         <button
           onClick={handleDelete}
           className="text-gray-500 hover:text-red-400 transition-colors p-2"
-          title="Delete campaign"
+          aria-label="Delete campaign"
         >
           <Trash2 size={20} />
         </button>

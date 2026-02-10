@@ -37,7 +37,7 @@ export default function CharactersPage() {
   if (loading) return <div className="p-8 text-gray-400">Loading...</div>;
 
   return (
-    <div className="p-8 max-w-4xl">
+    <div className="p-4 sm:p-8 max-w-4xl">
       <h1 className="text-2xl font-bold text-gray-100 mb-6">All Characters</h1>
 
       {characters.length === 0 ? (

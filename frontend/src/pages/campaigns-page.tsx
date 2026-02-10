@@ -9,7 +9,7 @@ export default function CampaignsPage() {
   if (loading) return <div className="p-8 text-gray-400">Loading...</div>;
 
   return (
-    <div className="p-8 max-w-4xl">
+    <div className="p-4 sm:p-8 max-w-4xl">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-100">Campaigns</h1>
         <Link
