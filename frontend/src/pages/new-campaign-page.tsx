@@ -1,23 +1,21 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { listRulesets } from '../api/rulesets';
 import { createCampaign } from '../api/campaigns';
-import type { Ruleset } from '../types';
+import { useApiCache, invalidateCache } from '../hooks/use-api-cache';
 
 export default function NewCampaignPage() {
-  const [rulesets, setRulesets] = useState<Ruleset[]>([]);
+  const { data: rulesets } = useApiCache(listRulesets);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [rulesetId, setRulesetId] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    listRulesets().then((r) => {
-      setRulesets(r);
-      if (r.length > 0) setRulesetId(r[0].id);
-    });
-  }, []);
+  // Auto-select first ruleset once loaded
+  if (rulesets && rulesets.length > 0 && !rulesetId) {
+    setRulesetId(rulesets[0].id);
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,6 +27,7 @@ export default function NewCampaignPage() {
         name: name.trim(),
         description: description.trim(),
       });
+      invalidateCache('listCampaigns');
       navigate(`/campaigns/${campaign.id}`);
     } finally {
       setSubmitting(false);
@@ -36,7 +35,7 @@ export default function NewCampaignPage() {
   };
 
   return (
-    <div className="p-8 max-w-xl">
+    <div className="p-4 sm:p-8 max-w-xl">
       <h1 className="text-2xl font-bold text-gray-100 mb-6">New Campaign</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
@@ -57,7 +56,7 @@ export default function NewCampaignPage() {
             onChange={(e) => setRulesetId(e.target.value)}
             className="w-full px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-gray-100 focus:outline-none focus:border-amber-400"
           >
-            {rulesets.map((r) => (
+            {(rulesets ?? []).map((r) => (
               <option key={r.id} value={r.id}>
                 {r.name}
               </option>

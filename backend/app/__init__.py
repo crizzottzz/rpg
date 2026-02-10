@@ -1,9 +1,42 @@
 from flask import Flask
 from flask_cors import CORS
+from flasgger import Swagger
 
 from config import Config
 from app.extensions import db, migrate
 from app.utils.errors import register_error_handlers
+
+SWAGGER_CONFIG = {
+    "headers": [],
+    "specs": [
+        {
+            "endpoint": "openapi",
+            "route": "/api/openapi.json",
+        }
+    ],
+    "static_url_path": "/flasgger_static",
+    "swagger_ui": True,
+    "specs_route": "/api/docs",
+}
+
+SWAGGER_TEMPLATE = {
+    "openapi": "3.0.3",
+    "info": {
+        "title": "RPG Platform API",
+        "version": "1.0.0",
+        "description": "Tabletop RPG campaign management API",
+    },
+    "servers": [{"url": "/"}],
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT",
+            }
+        }
+    },
+}
 
 
 def create_app(config_class=Config):
@@ -14,6 +47,7 @@ def create_app(config_class=Config):
     db.init_app(app)
     migrate.init_app(app, db)
     CORS(app)
+    Swagger(app, config=SWAGGER_CONFIG, template=SWAGGER_TEMPLATE)
 
     # Error handlers
     register_error_handlers(app)

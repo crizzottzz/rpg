@@ -1,10 +1,13 @@
 import uuid
 import json
 from datetime import datetime, timezone
+from typing import Any
 from app.extensions import db
 
 
 class Character(db.Model):
+    """Player character or NPC within a campaign."""
+
     __tablename__ = "characters"
 
     id = db.Column(db.Text, primary_key=True, default=lambda: str(uuid.uuid4()))
@@ -21,11 +24,13 @@ class Character(db.Model):
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc),
                            onupdate=lambda: datetime.now(timezone.utc))
 
-    def _parse_json(self, field, default):
+    def _parse_json(self, field: str, default: Any) -> Any:
+        """Parse a JSON text column, returning default on empty."""
         val = getattr(self, field)
         return json.loads(val) if val else default
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
+        """Serialize to dictionary for JSON response."""
         return {
             "id": self.id,
             "campaign_id": self.campaign_id,

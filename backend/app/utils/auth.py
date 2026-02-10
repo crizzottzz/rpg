@@ -1,5 +1,6 @@
 import functools
 from datetime import datetime, timedelta, timezone
+from typing import Any, Callable
 
 import jwt
 from flask import request, jsonify, current_app
@@ -8,6 +9,14 @@ from app.models.user import User
 
 
 def create_access_token(user_id: str) -> str:
+    """Create a JWT access token for the given user.
+
+    Args:
+        user_id: UUID string of the user.
+
+    Returns:
+        Encoded JWT string.
+    """
     payload = {
         "sub": user_id,
         "type": "access",
@@ -20,6 +29,14 @@ def create_access_token(user_id: str) -> str:
 
 
 def create_refresh_token(user_id: str) -> str:
+    """Create a JWT refresh token for the given user.
+
+    Args:
+        user_id: UUID string of the user.
+
+    Returns:
+        Encoded JWT string.
+    """
     payload = {
         "sub": user_id,
         "type": "refresh",
@@ -31,11 +48,27 @@ def create_refresh_token(user_id: str) -> str:
     return jwt.encode(payload, current_app.config["JWT_SECRET_KEY"], algorithm="HS256")
 
 
-def decode_token(token: str) -> dict:
+def decode_token(token: str) -> dict[str, Any]:
+    """Decode and verify a JWT token.
+
+    Args:
+        token: Encoded JWT string.
+
+    Returns:
+        Decoded payload dictionary.
+
+    Raises:
+        jwt.ExpiredSignatureError: If token has expired.
+        jwt.InvalidTokenError: If token is malformed.
+    """
     return jwt.decode(token, current_app.config["JWT_SECRET_KEY"], algorithms=["HS256"])
 
 
-def jwt_required(f):
+def jwt_required(f: Callable) -> Callable:
+    """Decorator that requires a valid JWT access token.
+
+    Sets request.current_user to the authenticated User instance.
+    """
     @functools.wraps(f)
     def decorated(*args, **kwargs):
         auth_header = request.headers.get("Authorization", "")

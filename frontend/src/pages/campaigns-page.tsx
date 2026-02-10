@@ -1,23 +1,15 @@
-import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, Swords } from 'lucide-react';
 import { listCampaigns } from '../api/campaigns';
-import type { Campaign } from '../types';
+import { useApiCache } from '../hooks/use-api-cache';
 
 export default function CampaignsPage() {
-  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    listCampaigns()
-      .then(setCampaigns)
-      .finally(() => setLoading(false));
-  }, []);
+  const { data: campaigns, loading } = useApiCache(listCampaigns);
 
   if (loading) return <div className="p-8 text-gray-400">Loading...</div>;
 
   return (
-    <div className="p-8 max-w-4xl">
+    <div className="p-4 sm:p-8 max-w-4xl">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-100">Campaigns</h1>
         <Link
@@ -29,14 +21,14 @@ export default function CampaignsPage() {
         </Link>
       </div>
 
-      {campaigns.length === 0 ? (
+      {(campaigns ?? []).length === 0 ? (
         <div className="text-center py-12 text-gray-500">
           <Swords className="mx-auto mb-3 opacity-50" size={40} />
           <p>No campaigns yet. Create one to get started.</p>
         </div>
       ) : (
         <div className="space-y-3">
-          {campaigns.map((c) => (
+          {(campaigns ?? []).map((c) => (
             <Link
               key={c.id}
               to={`/campaigns/${c.id}`}

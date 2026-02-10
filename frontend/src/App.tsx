@@ -1,19 +1,19 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { useAuthStore } from './stores/authStore';
-import AppShell from './components/AppShell';
-import ProtectedRoute from './components/ProtectedRoute';
-import LoginPage from './pages/LoginPage';
-import DashboardPage from './pages/DashboardPage';
-import RulesetsPage from './pages/RulesetsPage';
-import RulesetDetailPage from './pages/RulesetDetailPage';
-import EntityDetailPage from './pages/EntityDetailPage';
-import CampaignsPage from './pages/CampaignsPage';
-import NewCampaignPage from './pages/NewCampaignPage';
-import CampaignDetailPage from './pages/CampaignDetailPage';
-import CharactersPage from './pages/CharactersPage';
-import NewCharacterPage from './pages/NewCharacterPage';
-import CharacterDetailPage from './pages/CharacterDetailPage';
+import { useAuthStore } from './stores/auth-store';
+import AppShell from './components/app-shell';
+import ProtectedRoute from './components/protected-route';
+import LoginPage from './pages/login-page';
+import DashboardPage from './pages/dashboard-page';
+import RulesetsPage from './pages/rulesets-page';
+import RulesetDetailPage from './pages/ruleset-detail-page';
+import EntityDetailPage from './pages/entity-detail-page';
+import CampaignsPage from './pages/campaigns-page';
+import NewCampaignPage from './pages/new-campaign-page';
+import CampaignDetailPage from './pages/campaign-detail-page';
+import CharactersPage from './pages/characters-page';
+import NewCharacterPage from './pages/new-character-page';
+import CharacterDetailPage from './pages/character-detail-page';
 
 export default function App() {
   const checkAuth = useAuthStore((s) => s.checkAuth);

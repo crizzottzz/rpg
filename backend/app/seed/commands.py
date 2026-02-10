@@ -1,13 +1,15 @@
 import click
-from flask import current_app
+from flask import Flask, current_app
 
 from app.extensions import db
 from app.models.user import User
 
 
-def register_commands(app):
+def register_commands(app: Flask) -> None:
+    """Register CLI seed commands with the Flask app."""
+
     @app.cli.command("seed-user")
-    def seed_user():
+    def seed_user() -> None:
         """Seed the default user."""
         username = current_app.config["SEED_USERNAME"]
         email = current_app.config["SEED_EMAIL"]
@@ -25,7 +27,7 @@ def register_commands(app):
 
     @app.cli.command("seed")
     @click.option("--source", default="open5e", help="Data source: open5e or file")
-    def seed_data(source):
+    def seed_data(source: str) -> None:
         """Seed ruleset data from Open5e or local files."""
         from app.seed.open5e import seed_open5e
         seed_user.callback()

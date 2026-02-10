@@ -1,38 +1,36 @@
-import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Plus, Trash2, Users } from 'lucide-react';
 import { getCampaign, deleteCampaign } from '../api/campaigns';
 import { listCharacters } from '../api/characters';
-import type { Campaign, Character } from '../types';
+import { useApiCache, invalidateCache } from '../hooks/use-api-cache';
+import type { Character } from '../types';
 
 export default function CampaignDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [campaign, setCampaign] = useState<Campaign | null>(null);
-  const [characters, setCharacters] = useState<Character[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!id) return;
-    Promise.all([getCampaign(id), listCharacters(id)])
-      .then(([c, chars]) => {
-        setCampaign(c);
-        setCharacters(chars);
-      })
-      .finally(() => setLoading(false));
-  }, [id]);
+  const { data: campaign, loading: loadingCampaign } = useApiCache(
+    getCampaign,
+    [id!],
+    { enabled: !!id },
+  );
+  const { data: characters, loading: loadingChars } = useApiCache<Character[]>(
+    listCharacters,
+    [id!],
+    { enabled: !!id },
+  );
 
   const handleDelete = async () => {
     if (!id || !confirm('Delete this campaign and all its characters?')) return;
     await deleteCampaign(id);
+    invalidateCache('listCampaigns');
     navigate('/campaigns');
   };
 
-  if (loading) return <div className="p-8 text-gray-400">Loading...</div>;
+  if (loadingCampaign || loadingChars) return <div className="p-8 text-gray-400">Loading...</div>;
   if (!campaign) return <div className="p-8 text-red-400">Campaign not found</div>;
 
   return (
-    <div className="p-8 max-w-4xl">
+    <div className="p-4 sm:p-8 max-w-4xl">
       <Link to="/campaigns" className="text-sm text-gray-500 hover:text-gray-300">
         &larr; Campaigns
       </Link>
@@ -47,7 +45,7 @@ export default function CampaignDetailPage() {
         <button
           onClick={handleDelete}
           className="text-gray-500 hover:text-red-400 transition-colors p-2"
-          title="Delete campaign"
+          aria-label="Delete campaign"
         >
           <Trash2 size={20} />
         </button>
@@ -64,14 +62,14 @@ export default function CampaignDetailPage() {
         </Link>
       </div>
 
-      {characters.length === 0 ? (
+      {(characters ?? []).length === 0 ? (
         <div className="text-center py-12 text-gray-500">
           <Users className="mx-auto mb-3 opacity-50" size={40} />
           <p>No characters yet.</p>
         </div>
       ) : (
         <div className="space-y-2">
-          {characters.map((c) => (
+          {(characters ?? []).map((c) => (
             <Link
               key={c.id}
               to={`/characters/${c.id}`}

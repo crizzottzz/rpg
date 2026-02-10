@@ -1,5 +1,5 @@
 import json
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, Response, request, jsonify
 
 from app.extensions import db
 from app.models.character import Character
@@ -11,7 +11,30 @@ characters_bp = Blueprint("characters", __name__)
 
 @characters_bp.route("/api/campaigns/<campaign_id>/characters")
 @jwt_required
-def list_characters(campaign_id):
+def list_characters(campaign_id: str) -> tuple[Response, int] | Response:
+    """
+    List all characters in a campaign.
+
+    ---
+    tags:
+      - Characters
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: campaign_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    responses:
+      200:
+        description: List of characters
+      401:
+        description: Not authenticated
+      404:
+        description: Campaign not found
+    """
     campaign = Campaign.query.filter_by(
         id=campaign_id, user_id=request.current_user.id
     ).first()
@@ -24,7 +47,64 @@ def list_characters(campaign_id):
 
 @characters_bp.route("/api/campaigns/<campaign_id>/characters", methods=["POST"])
 @jwt_required
-def create_character(campaign_id):
+def create_character(campaign_id: str) -> tuple[Response, int] | Response:
+    """
+    Create a new character in a campaign.
+
+    ---
+    tags:
+      - Characters
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: campaign_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [name]
+            properties:
+              name:
+                type: string
+                description: Character name
+              character_type:
+                type: string
+                enum: [pc, npc]
+                default: pc
+              level:
+                type: integer
+                default: 1
+              core_data:
+                type: object
+                description: Ability scores, HP, AC, etc.
+              class_data:
+                type: object
+                description: Class levels and features
+              equipment:
+                type: array
+                items:
+                  type: object
+              spells:
+                type: array
+                items:
+                  type: object
+    responses:
+      201:
+        description: Character created
+      400:
+        description: Validation error
+      401:
+        description: Not authenticated
+      404:
+        description: Campaign not found
+    """
     campaign = Campaign.query.filter_by(
         id=campaign_id, user_id=request.current_user.id
     ).first()
@@ -35,10 +115,13 @@ def create_character(campaign_id):
     if not data:
         return jsonify({"error": "Request body required"}), 400
 
+    if not data.get("name"):
+        return jsonify({"error": "Missing required fields", "detail": "name is required"}), 400
+
     character = Character(
         campaign_id=campaign_id,
         user_id=request.current_user.id,
-        name=data.get("name", "Unnamed Character"),
+        name=data["name"],
         character_type=data.get("character_type", "pc"),
         level=data.get("level", 1),
         core_data=json.dumps(data.get("core_data", {})),
@@ -53,7 +136,30 @@ def create_character(campaign_id):
 
 @characters_bp.route("/api/characters/<character_id>")
 @jwt_required
-def get_character(character_id):
+def get_character(character_id: str) -> tuple[Response, int] | Response:
+    """
+    Get a single character by ID.
+
+    ---
+    tags:
+      - Characters
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: character_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    responses:
+      200:
+        description: Character details
+      401:
+        description: Not authenticated
+      404:
+        description: Character not found
+    """
     character = Character.query.filter_by(
         id=character_id, user_id=request.current_user.id
     ).first()
@@ -64,7 +170,54 @@ def get_character(character_id):
 
 @characters_bp.route("/api/characters/<character_id>", methods=["PUT"])
 @jwt_required
-def update_character(character_id):
+def update_character(character_id: str) -> tuple[Response, int] | Response:
+    """
+    Update a character's fields.
+
+    ---
+    tags:
+      - Characters
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: character_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              character_type:
+                type: string
+                enum: [pc, npc]
+              level:
+                type: integer
+              core_data:
+                type: object
+              class_data:
+                type: object
+              equipment:
+                type: array
+              spells:
+                type: array
+    responses:
+      200:
+        description: Character updated
+      400:
+        description: Request body required
+      401:
+        description: Not authenticated
+      404:
+        description: Character not found
+    """
     character = Character.query.filter_by(
         id=character_id, user_id=request.current_user.id
     ).first()
@@ -96,7 +249,30 @@ def update_character(character_id):
 
 @characters_bp.route("/api/characters/<character_id>", methods=["DELETE"])
 @jwt_required
-def delete_character(character_id):
+def delete_character(character_id: str) -> tuple[str, int] | tuple[Response, int]:
+    """
+    Delete a character.
+
+    ---
+    tags:
+      - Characters
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: character_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    responses:
+      204:
+        description: Character deleted
+      401:
+        description: Not authenticated
+      404:
+        description: Character not found
+    """
     character = Character.query.filter_by(
         id=character_id, user_id=request.current_user.id
     ).first()
@@ -105,4 +281,4 @@ def delete_character(character_id):
 
     db.session.delete(character)
     db.session.commit()
-    return jsonify({"message": "Character deleted"})
+    return '', 204
