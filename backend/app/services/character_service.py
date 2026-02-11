@@ -1,10 +1,29 @@
 """Character service — CRUD operations for campaign characters."""
 
 import json
+from typing import Any
 
 from app.extensions import db
 from app.models.character import Character
 from app.models.campaign import Campaign
+
+_JSON_FIELD_TYPES: dict[str, type] = {
+    "core_data": dict,
+    "class_data": dict,
+    "equipment": list,
+    "spells": list,
+}
+
+
+def _validate_json_fields(data: dict[str, Any]) -> None:
+    """Validate that JSON blob fields have the correct container type.
+
+    Raises:
+        ValueError: If a field has the wrong type.
+    """
+    for field, expected in _JSON_FIELD_TYPES.items():
+        if field in data and not isinstance(data[field], expected):
+            raise ValueError(f"{field} must be a {expected.__name__}")
 
 
 def list_all_characters(user_id: str) -> list[dict]:
@@ -75,6 +94,7 @@ def create_character(campaign_id: str, user_id: str, data: dict) -> dict:
 
     if not data.get("name"):
         raise ValueError("name is required")
+    _validate_json_fields(data)
 
     character = Character(
         campaign_id=campaign_id,
@@ -120,6 +140,8 @@ def update_character(character_id: str, user_id: str, data: dict) -> dict | None
     character = Character.query.filter_by(id=character_id, user_id=user_id).first()
     if not character:
         return None
+
+    _validate_json_fields(data)
 
     if "name" in data:
         character.name = data["name"]

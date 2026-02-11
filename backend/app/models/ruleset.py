@@ -1,8 +1,29 @@
 import uuid
 import json
 from datetime import datetime, timezone
+from typing import Any, TypedDict
 
 from app.extensions import db
+
+
+class RulesetDict(TypedDict):
+    id: str
+    key: str
+    name: str
+    source_type: str
+    entity_types: list[str]
+    entity_count: int
+    created_at: str | None
+    updated_at: str | None
+
+
+class EntityDict(TypedDict, total=False):
+    id: str
+    ruleset_id: str
+    entity_type: str
+    source_key: str
+    name: str
+    entity_data: dict[str, Any]
 
 
 class Ruleset(db.Model):
@@ -32,7 +53,7 @@ class Ruleset(db.Model):
         """Parse the JSON entity_types column."""
         return json.loads(self.entity_types) if self.entity_types else []
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> RulesetDict:
         """Serialize to dictionary for JSON response."""
         return {
             "id": self.id,
@@ -67,7 +88,7 @@ class RulesetEntity(db.Model):
         """Parse the JSON entity_data column."""
         return json.loads(self.entity_data) if self.entity_data else {}
 
-    def to_dict(self, include_data: bool = False) -> dict:
+    def to_dict(self, include_data: bool = False) -> EntityDict:
         """Serialize to dictionary for JSON response.
 
         Args:

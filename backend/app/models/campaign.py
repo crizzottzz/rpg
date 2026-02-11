@@ -1,7 +1,22 @@
 import uuid
 import json
 from datetime import datetime, timezone
+from typing import Any, TypedDict
+
 from app.extensions import db
+
+
+class CampaignDict(TypedDict):
+    id: str
+    user_id: str
+    ruleset_id: str
+    name: str
+    description: str
+    status: str
+    settings: dict[str, Any]
+    created_at: str | None
+    updated_at: str | None
+    character_count: int
 
 
 class Campaign(db.Model):
@@ -28,7 +43,7 @@ class Campaign(db.Model):
         """Parse the JSON settings column."""
         return json.loads(self.settings) if self.settings else {}
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> CampaignDict:
         """Serialize to dictionary for JSON response."""
         return {
             "id": self.id,

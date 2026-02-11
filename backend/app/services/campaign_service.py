@@ -41,12 +41,16 @@ def create_campaign(user_id: str, data: dict) -> dict:
     if not ruleset:
         raise LookupError("Ruleset not found")
 
+    settings = data.get("settings", {})
+    if not isinstance(settings, dict):
+        raise ValueError("settings must be an object")
+
     campaign = Campaign(
         user_id=user_id,
         ruleset_id=ruleset.id,
         name=data["name"],
         description=data.get("description", ""),
-        settings=json.dumps(data.get("settings", {})),
+        settings=json.dumps(settings),
     )
     db.session.add(campaign)
     db.session.commit()
@@ -89,6 +93,8 @@ def update_campaign(campaign_id: str, user_id: str, data: dict) -> dict | None:
     if "status" in data:
         campaign.status = data["status"]
     if "settings" in data:
+        if not isinstance(data["settings"], dict):
+            raise ValueError("settings must be an object")
         campaign.settings = json.dumps(data["settings"])
 
     db.session.commit()

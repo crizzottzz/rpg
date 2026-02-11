@@ -1,8 +1,24 @@
 import uuid
 import json
 from datetime import datetime, timezone
-from typing import Any
+from typing import Any, TypedDict
+
 from app.extensions import db
+
+
+class CharacterDict(TypedDict):
+    id: str
+    campaign_id: str
+    user_id: str
+    name: str
+    character_type: str
+    level: int
+    core_data: dict[str, Any]
+    class_data: dict[str, Any]
+    equipment: list[Any]
+    spells: list[Any]
+    created_at: str | None
+    updated_at: str | None
 
 
 class Character(db.Model):
@@ -29,7 +45,7 @@ class Character(db.Model):
         val = getattr(self, field)
         return json.loads(val) if val else default
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> CharacterDict:
         """Serialize to dictionary for JSON response."""
         return {
             "id": self.id,

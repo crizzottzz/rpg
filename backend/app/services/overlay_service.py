@@ -60,6 +60,9 @@ def create_overlay(user_id: str, data: dict) -> dict:
     if not ruleset:
         raise LookupError("Ruleset not found")
 
+    if not isinstance(data.get("overlay_data"), dict):
+        raise ValueError("overlay_data must be an object")
+
     overlay = UserOverlay(
         user_id=user_id,
         ruleset_id=ruleset.id,
@@ -90,6 +93,8 @@ def update_overlay(overlay_id: str, user_id: str, data: dict) -> dict | None:
         return None
 
     if "overlay_data" in data:
+        if not isinstance(data["overlay_data"], dict):
+            raise ValueError("overlay_data must be an object")
         overlay.overlay_data = json.dumps(data["overlay_data"])
     if "overlay_type" in data:
         overlay.overlay_type = data["overlay_type"]
