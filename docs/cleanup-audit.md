@@ -74,6 +74,7 @@ Blocked on Caddy/HTTPS setup. Do these together when ready.
 ### ~~DevEx & Tooling (Category 7)~~ — DONE
 
 - [x] **Add logging** — `init_logging()` in `create_app()`, structured console output, auth event logging
+- [x] **Live log streaming** — SSE endpoint + self-contained HTML log viewer at `/api/logs` with login, regex filter, auto-scroll. Sidebar username links to it.
 - [x] **ESLint config** — Added no-console (warn), consistent-type-imports, sort-imports rules
 - [x] **Database seeding idempotency** — Already idempotent; documented flow in `seed/commands.py`
 

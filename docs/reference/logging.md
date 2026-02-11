@@ -177,4 +177,4 @@ Each subscriber queue is bounded (200 records). If a slow consumer fills its que
 - Database handler for high-value events (WARNING+ or audit events)
 - External observability integration (if the app moves to production)
 - Request ID correlation across log entries
-- Frontend log viewer page (consume SSE stream in a React component)
+- ~~Frontend log viewer page~~ — Done. Self-contained HTML page at `/api/logs` with login, filtering, and auto-scroll. Link from sidebar username.
