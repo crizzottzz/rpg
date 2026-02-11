@@ -19,5 +19,10 @@ export default defineConfig([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    rules: {
+      'no-console': 'warn',
+      '@typescript-eslint/consistent-type-imports': 'warn',
+      'sort-imports': ['warn', { ignoreDeclarationSort: true }],
+    },
   },
 ])

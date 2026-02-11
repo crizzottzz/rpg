@@ -1,9 +1,13 @@
 """Authentication service — credential verification and token refresh."""
 
+import logging
+
 import jwt
 
 from app.models.user import User
 from app.utils.auth import create_access_token, create_refresh_token, decode_token
+
+logger = logging.getLogger(__name__)
 
 
 def authenticate_user(username: str, password: str) -> dict:
@@ -21,8 +25,10 @@ def authenticate_user(username: str, password: str) -> dict:
     """
     user = User.query.filter_by(username=username).first()
     if not user or not user.check_password(password):
+        logger.warning("Login failed for username=%s", username)
         raise ValueError("Invalid credentials")
 
+    logger.info("Login success for user_id=%s", user.id)
     return {
         "access_token": create_access_token(user.id),
         "refresh_token": create_refresh_token(user.id),
@@ -45,8 +51,10 @@ def refresh_access_token(refresh_token: str) -> dict:
     try:
         payload = decode_token(refresh_token)
     except jwt.ExpiredSignatureError:
+        logger.warning("Expired refresh token")
         raise ValueError("Refresh token has expired")
     except jwt.InvalidTokenError:
+        logger.warning("Invalid refresh token")
         raise ValueError("Invalid refresh token")
 
     if payload.get("type") != "refresh":
