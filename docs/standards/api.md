@@ -23,6 +23,7 @@
 | 403  | Not authorized |
 | 404  | Resource not found |
 | 409  | Conflict (duplicate, stale data) |
+| 429  | Too many requests (rate limited) |
 | 500  | Server error |
 
 ## Route Handler Pattern
@@ -35,9 +36,11 @@ Route handlers are **thin**:
 
 No business logic in route handlers.
 
-## OpenAPI 3.1 Docstrings
+## OpenAPI Docstrings
 
-Every route handler must have an OpenAPI 3.1-compatible docstring. The docstring should be structured so it can be parsed to generate a valid OpenAPI spec for Swagger/Postman import.
+Every route handler must have an OpenAPI-compatible docstring parsed by Flasgger to generate the Swagger UI at `/api/docs`.
+
+> **Note:** Flasgger 0.9.7.1 supports OpenAPI 3.0.3 (not 3.1). Docstrings should target 3.0.x syntax. The main practical difference is that 3.1 allows `type: [string, null]` while 3.0 uses `nullable: true`. If a future Flasgger release or alternative (e.g., `flask-smorest`) adds 3.1 support, update this note.
 
 ### Format
 

@@ -57,12 +57,54 @@ src/
 - **Native controlled inputs** for simple forms (login, search, filters)
 - Zod schemas provide both TypeScript types and runtime validation
 
+## Responsive Design
+
+Mobile-first approach. Design for small screens, enhance for larger ones.
+
+### Breakpoints
+
+Use Tailwind's default breakpoints:
+
+| Prefix | Min Width | Target |
+|--------|-----------|--------|
+| (none) | 0px | Phones |
+| `sm:` | 640px | Large phones / small tablets |
+| `md:` | 768px | Tablets |
+| `lg:` | 1024px | Desktops (sidebar breakpoint) |
+
+### Layout Rules
+
+- **Sidebar:** Collapsible drawer below `lg:`, fixed sidebar at `lg:` and above. Toggle via hamburger menu.
+- **Page padding:** `p-4 sm:p-8` — tighter on mobile, relaxed on desktop.
+- **Grids:** Always include a mobile-friendly column count (e.g., `grid-cols-3 sm:grid-cols-6` for ability scores).
+- **Touch targets:** Minimum 44x44px for interactive elements (buttons, links, icons). Use `min-h-11 min-w-11` or padding.
+
+### Patterns
+
+- Prefer `flex-col sm:flex-row` for layouts that stack on mobile and go horizontal on desktop.
+- Use `max-w-4xl` on content areas to prevent ultra-wide reading on large screens.
+- Test at 375px (phone), 768px (tablet), 1280px (desktop).
+
 ## Styling
 
 - Tailwind CSS for all styling
 - **All visual values reference theme tokens** (CSS custom properties)
 - Never hardcode color values, font sizes, or spacing directly in components
 - Use semantic token names (`--color-primary`, `--color-surface`) not raw values
+
+### Theme Token System
+
+Tokens are defined in `index.css` using Tailwind v4's `@theme` directive. All components use semantic token names instead of raw Tailwind color classes.
+
+**Surface tokens:** `bg-surface`, `bg-subtle`, `bg-base`
+**Text tokens:** `text-heading`, `text-content`, `text-label`, `text-muted`
+**Border tokens:** `border-edge`, `border-edge-hover`
+**Accent tokens:** `text-accent`, `bg-accent`, `bg-accent-bold`, `text-accent-fg`
+
+To add a new token:
+1. Define the CSS custom property in `@theme` block in `index.css`
+2. Use it in components via Tailwind class (e.g., `bg-my-token`)
+3. For theme switching, provide alternate values under a class or media query
 
 ## Error Handling
 

@@ -75,6 +75,39 @@ Full in-app theming with per-user preferences.
 - Theme provider component loads values and injects into DOM
 - Theme changes apply immediately via CSS variable updates
 
+## Responsive Layout Architecture
+
+The app uses a shell + content layout. `AppShell` provides the sidebar and top bar; route pages render in the content area.
+
+### Layout Structure
+
+```
+┌──────────────────────────────────┐
+│  AppShell                        │
+│  ┌─────────┬────────────────────┐│
+│  │ Sidebar │  Content Area      ││
+│  │ (nav)   │  (route pages)     ││
+│  │         │                    ││
+│  │  lg+:   │  max-w-4xl         ││
+│  │  fixed  │  p-4 sm:p-8        ││
+│  │         │                    ││
+│  │  <lg:   │                    ││
+│  │  drawer │                    ││
+│  └─────────┴────────────────────┘│
+└──────────────────────────────────┘
+```
+
+### Sidebar Behavior
+
+- **Desktop (lg+):** Fixed sidebar, always visible, `w-64`.
+- **Mobile (<lg):** Hidden by default. Hamburger button in top bar opens an overlay drawer. Backdrop click or nav link closes it.
+
+### Content Pages
+
+- All pages use `p-4 sm:p-8 max-w-4xl` for consistent padding and width.
+- Grids use responsive column counts (e.g., `grid-cols-3 sm:grid-cols-6`).
+- Lists and cards are full-width within the max-width container.
+
 ## Environment & Configuration
 
 - **dotenv** for environment variables
