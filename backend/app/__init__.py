@@ -5,6 +5,7 @@ from flasgger import Swagger
 from config import Config
 from app.extensions import db, migrate
 from app.utils.errors import register_error_handlers
+from app.utils.logging import init_logging
 
 SWAGGER_CONFIG = {
     "headers": [],
@@ -42,6 +43,9 @@ SWAGGER_TEMPLATE = {
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
+
+    # Logging
+    init_logging()
 
     # Extensions
     db.init_app(app)

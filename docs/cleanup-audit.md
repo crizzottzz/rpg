@@ -71,11 +71,11 @@ Blocked on Caddy/HTTPS setup. Do these together when ready.
 - [ ] **Flasgger version note** — Verify OpenAPI 3.1 compatibility with flasgger 0.9.7.1
 - [ ] **Config class split** — Document or implement dev/test/prod config
 
-### DevEx & Tooling (Category 7)
+### ~~DevEx & Tooling (Category 7)~~ — DONE
 
-- [ ] **Add logging** — `init_logging()` in `create_app()` per `docs/reference/logging.md`
-- [ ] **ESLint config** — Add rules: no-console (warn), consistent return types, import ordering
-- [ ] **Database seeding idempotency** — Document expected seed flow, make safe to run repeatedly
+- [x] **Add logging** — `init_logging()` in `create_app()`, structured console output, auth event logging
+- [x] **ESLint config** — Added no-console (warn), consistent-type-imports, sort-imports rules
+- [x] **Database seeding idempotency** — Already idempotent; documented flow in `seed/commands.py`
 
 ### Declined
 

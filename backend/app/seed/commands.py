@@ -6,7 +6,17 @@ from app.models.user import User
 
 
 def register_commands(app: Flask) -> None:
-    """Register CLI seed commands with the Flask app."""
+    """Register CLI seed commands with the Flask app.
+
+    Seed flow:
+        flask seed-user   — Creates the default user if not already present.
+        flask seed         — Runs seed-user first, then fetches Open5e data.
+
+    Both commands are idempotent and safe to run repeatedly:
+    - seed-user checks for existing user before creating.
+    - seed upserts entities (updates existing, inserts new) by source_key.
+    - seed creates the ruleset if missing, otherwise updates entities in place.
+    """
 
     @app.cli.command("seed-user")
     def seed_user() -> None:
