@@ -126,9 +126,31 @@ Vite 7, React 19, TypeScript, React Router v7, Zustand, Axios, Tailwind CSS v4, 
 
 ## Session Notes
 
-### Voice Interaction
+### Voice Interaction — MANDATORY
 
-The user often enables spoken responses via a reverse SSH tunnel. **After context compaction, re-check the parent CLAUDE.md for voice interaction instructions** — the speak-chat-speak pattern, TTS via `curl -s --connect-timeout 2 -X POST -d "message" http://localhost:7777`, and rules about when to use it. This note exists because compaction tends to lose this context.
+The user has a reverse SSH tunnel for text-to-speech. **This section is self-contained — do not rely on conversation history to know whether TTS is active.**
+
+**Probe on first response (and after any compaction):**
+```bash
+curl -s --connect-timeout 1 -o /dev/null -w '%{http_code}' http://localhost:7777
+```
+- If the probe returns anything other than `000`, the tunnel is UP — use TTS for the rest of the session.
+- If `000` (connection refused), the tunnel is DOWN — skip TTS silently.
+
+**To speak:**
+```bash
+curl -s --connect-timeout 2 -X POST -d "Your message here" http://localhost:7777
+```
+
+**Rules:**
+- Do not background the curl (causes permission prompts)
+- Keep spoken messages short and conversational
+- Only stop using TTS if the user explicitly says to stop
+
+**Response pattern (speak-chat-speak):**
+1. **Speak first** — Quick verbal acknowledgment or answer
+2. **Chat** — Details, code blocks, tables, decision options (stuff to read/reference)
+3. **Speak last** — Closing question or confirmation (optional, when needed)
 
 ### Theming — Current State
 
