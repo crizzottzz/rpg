@@ -91,9 +91,7 @@ export default function CampaignDetailPage() {
                 <span className="font-medium text-heading">{c.name}</span>
                 <span className="ml-3 text-sm text-muted">
                   Level {c.level} {c.core_data?.species || ''}{' '}
-                  {typeof c.class_data === 'object' && c.class_data !== null
-                    ? String((c.class_data as Record<string, unknown>).name ?? '')
-                    : ''}
+                  {c.class_data?.name ? String(c.class_data.name) : ''}
                 </span>
               </div>
               <span className="text-xs text-muted uppercase">{c.character_type}</span>
