@@ -5,10 +5,23 @@ interface CacheEntry<T> {
   timestamp: number;
 }
 
+const DEFAULT_TTL = 5 * 60 * 1000; // 5 minutes
+const MAX_CACHE_SIZE = 100;
+
 const cache = new Map<string, CacheEntry<unknown>>();
 
-function buildKey(fetcher: Function, args: unknown[]): string {
-  return `${fetcher.name}:${JSON.stringify(args)}`;
+function evictOldest(): void {
+  if (cache.size <= MAX_CACHE_SIZE) return;
+  const oldest = cache.keys().next().value;
+  if (oldest !== undefined) cache.delete(oldest);
+}
+
+function buildKey(fetcher: (...args: unknown[]) => unknown, args: unknown[]): string {
+  const name = fetcher.name || 'anonymous';
+  if (import.meta.env.DEV && !fetcher.name) {
+    console.warn('useApiCache: fetcher has no name — cache key will be unstable. Use a named function.');
+  }
+  return `${name}:${JSON.stringify(args)}`;
 }
 
 /** Clear cached entries. No prefix = clear all. With prefix = clear matching keys. */
@@ -33,6 +46,7 @@ interface UseApiCacheResult<T> {
 
 interface UseApiCacheOptions {
   enabled?: boolean;
+  ttl?: number;
 }
 
 export function useApiCache<T>(
@@ -40,12 +54,13 @@ export function useApiCache<T>(
   args: unknown[] = [],
   options: UseApiCacheOptions = {},
 ): UseApiCacheResult<T> {
-  const { enabled = true } = options;
+  const { enabled = true, ttl = DEFAULT_TTL } = options;
   const key = buildKey(fetcher, args);
-  const cached = cache.get(key) as CacheEntry<T> | undefined;
+  const cached = enabled ? (cache.get(key) as CacheEntry<T> | undefined) : undefined;
+  const isFresh = cached ? Date.now() - cached.timestamp < ttl : false;
 
   const [data, setData] = useState<T | null>(cached?.data ?? null);
-  const [loading, setLoading] = useState(!cached?.data && enabled);
+  const [loading, setLoading] = useState(enabled && !cached?.data);
   const [error, setError] = useState<Error | null>(null);
   const fetcherRef = useRef(fetcher);
   fetcherRef.current = fetcher;
@@ -56,6 +71,7 @@ export function useApiCache<T>(
     try {
       const result = await fetcherRef.current(...args);
       cache.set(key, { data: result, timestamp: Date.now() });
+      evictOldest();
       setData(result);
     } catch (err) {
       setError(err instanceof Error ? err : new Error(String(err)));
@@ -66,13 +82,21 @@ export function useApiCache<T>(
   }, [key]);
 
   useEffect(() => {
-    if (!enabled) return;
-    // If we have cached data, return it immediately but still refetch
+    if (!enabled) {
+      setLoading(false);
+      return;
+    }
+    // Serve cached data immediately
     if (cached?.data) {
       setData(cached.data);
+      if (isFresh) {
+        setLoading(false);
+        return;
+      }
     }
     execute();
-  }, [execute, enabled]); // eslint-disable-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [execute, enabled]);
 
   return { data, loading, error, refetch: execute };
 }

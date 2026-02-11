@@ -9,6 +9,38 @@ from app.utils.auth import jwt_required
 characters_bp = Blueprint("characters", __name__)
 
 
+@characters_bp.route("/api/characters")
+@jwt_required
+def list_all_characters() -> Response:
+    """
+    List all characters for the current user across all campaigns.
+
+    ---
+    tags:
+      - Characters
+    security:
+      - bearerAuth: []
+    responses:
+      200:
+        description: List of user's characters with campaign names
+      401:
+        description: Not authenticated
+    """
+    rows = (
+        db.session.query(Character, Campaign.name)
+        .join(Campaign, Character.campaign_id == Campaign.id)
+        .filter(Character.user_id == request.current_user.id)
+        .order_by(Character.name)
+        .all()
+    )
+    characters = []
+    for char, campaign_name in rows:
+        d = char.to_dict()
+        d["campaign_name"] = campaign_name
+        characters.append(d)
+    return jsonify({"characters": characters})
+
+
 @characters_bp.route("/api/campaigns/<campaign_id>/characters")
 @jwt_required
 def list_characters(campaign_id: str) -> tuple[Response, int] | Response:

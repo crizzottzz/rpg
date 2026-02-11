@@ -1,12 +1,13 @@
 import { Link } from 'react-router-dom';
 import { BookOpen } from 'lucide-react';
+import Spinner from '../components/spinner';
 import { listRulesets } from '../api/rulesets';
 import { useApiCache } from '../hooks/use-api-cache';
 
 export default function RulesetsPage() {
   const { data: rulesets, loading } = useApiCache(listRulesets);
 
-  if (loading) return <div className="p-8 text-label">Loading...</div>;
+  if (loading) return <Spinner />;
 
   return (
     <div className="p-4 sm:p-8 max-w-4xl">

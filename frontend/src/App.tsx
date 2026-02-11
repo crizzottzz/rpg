@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useAuthStore } from './stores/auth-store';
 import AppShell from './components/app-shell';
+import ErrorBoundary from './components/error-boundary';
 import ProtectedRoute from './components/protected-route';
 import LoginPage from './pages/login-page';
 import DashboardPage from './pages/dashboard-page';
@@ -29,7 +30,9 @@ export default function App() {
         <Route
           element={
             <ProtectedRoute>
-              <AppShell />
+              <ErrorBoundary>
+                <AppShell />
+              </ErrorBoundary>
             </ProtectedRoute>
           }
         >

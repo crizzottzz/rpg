@@ -1,6 +1,15 @@
 import client from './client';
 import type { Character } from '../types';
 
+export interface CharacterWithCampaign extends Character {
+  campaign_name: string;
+}
+
+export async function listAllCharacters() {
+  const res = await client.get('/characters');
+  return res.data.characters as CharacterWithCampaign[];
+}
+
 export async function listCharacters(campaignId: string) {
   const res = await client.get(`/campaigns/${campaignId}/characters`);
   return res.data.characters as Character[];

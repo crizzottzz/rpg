@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { BookOpen, Swords, Users } from 'lucide-react';
+import Spinner from '../components/spinner';
 import { listRulesets } from '../api/rulesets';
 import { listCampaigns } from '../api/campaigns';
 import { useApiCache } from '../hooks/use-api-cache';
@@ -9,7 +10,7 @@ export default function DashboardPage() {
   const { data: campaigns, loading: loadingCampaigns } = useApiCache(listCampaigns);
 
   if (loadingRulesets || loadingCampaigns) {
-    return <div className="p-8 text-label">Loading...</div>;
+    return <Spinner />;
   }
 
   return (
