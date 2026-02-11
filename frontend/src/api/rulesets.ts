@@ -1,5 +1,5 @@
 import client from './client';
-import type { Ruleset, RulesetEntity, PaginatedResponse } from '../types';
+import type { Ruleset, RulesetEntity, RulesetSource, PaginatedResponse } from '../types';
 
 export async function listRulesets() {
   const res = await client.get('/rulesets');
@@ -13,10 +13,16 @@ export async function getRuleset(id: string) {
 
 export async function listEntities(
   rulesetId: string,
-  params: { type?: string; search?: string; page?: number; per_page?: number }
+  params: { type?: string; search?: string; source?: string; page?: number; per_page?: number }
 ) {
   const res = await client.get(`/rulesets/${rulesetId}/entities`, { params });
   return res.data as PaginatedResponse<RulesetEntity>;
+}
+
+export async function listSources(rulesetId: string, entityType?: string) {
+  const params = entityType ? { type: entityType } : {};
+  const res = await client.get(`/rulesets/${rulesetId}/sources`, { params });
+  return res.data.sources as RulesetSource[];
 }
 
 export async function getEntity(rulesetId: string, entityId: string) {

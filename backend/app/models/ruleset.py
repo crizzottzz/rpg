@@ -23,6 +23,7 @@ class EntityDict(TypedDict, total=False):
     entity_type: str
     source_key: str
     name: str
+    document_key: str | None
     entity_data: dict[str, Any]
 
 
@@ -77,6 +78,7 @@ class RulesetEntity(db.Model):
     entity_type = db.Column(db.String(50), nullable=False, index=True)
     source_key = db.Column(db.String(200), nullable=False)
     name = db.Column(db.String(300), nullable=False, index=True)
+    document_key = db.Column(db.String(100), nullable=True, index=True)
     entity_data = db.Column(db.Text, nullable=False, default="{}")  # JSON
 
     __table_args__ = (
@@ -100,6 +102,7 @@ class RulesetEntity(db.Model):
             "entity_type": self.entity_type,
             "source_key": self.source_key,
             "name": self.name,
+            "document_key": self.document_key,
         }
         if include_data:
             result["entity_data"] = self.get_entity_data()

@@ -26,9 +26,16 @@ export default function EntityDetailPage() {
       <h1 className="text-2xl font-bold text-heading mt-1 mb-1">
         {entity.name}
       </h1>
-      <span className="text-xs text-muted bg-subtle px-2 py-1 rounded capitalize">
-        {entity.entity_type}
-      </span>
+      <div className="flex items-center gap-2 flex-wrap">
+        <span className="text-xs text-muted bg-subtle px-2 py-1 rounded capitalize">
+          {entity.entity_type}
+        </span>
+        {entity.entity_data?.document?.display_name && (
+          <span className="text-xs text-muted bg-subtle px-2 py-1 rounded">
+            {entity.entity_data.document.display_name as string}
+          </span>
+        )}
+      </div>
 
       <div className="mt-6">
         <EntityRenderer type={entity.entity_type} data={entity.entity_data || {}} />

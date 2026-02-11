@@ -2,13 +2,14 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import Spinner from '../components/spinner';
-import { getRuleset, listEntities } from '../api/rulesets';
+import { getRuleset, listEntities, listSources } from '../api/rulesets';
 import { useApiCache } from '../hooks/use-api-cache';
 import { pluralize } from '../utils/pluralize';
 
 export default function RulesetDetailPage() {
   const { id } = useParams<{ id: string }>();
   const [activeType, setActiveType] = useState('');
+  const [activeSource, setActiveSource] = useState('');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
 
@@ -25,9 +26,16 @@ export default function RulesetDetailPage() {
     }
   }, [ruleset, activeType]);
 
+  // Fetch sources scoped to the active entity type
+  const { data: sources } = useApiCache(
+    listSources,
+    [id!, activeType || undefined],
+    { enabled: !!id && !!activeType },
+  );
+
   const { data: entityPage } = useApiCache(
     listEntities,
-    [id!, { type: activeType, search: search || undefined, page, per_page: 50 }],
+    [id!, { type: activeType, search: search || undefined, source: activeSource || undefined, page, per_page: 50 }],
     { enabled: !!id && !!activeType },
   );
 
@@ -35,8 +43,16 @@ export default function RulesetDetailPage() {
   const total = entityPage?.total ?? 0;
   const pages = entityPage?.pages ?? 0;
 
+  const defaultSource = sources?.find((s) => s.is_default);
+
   const handleTypeChange = (type: string) => {
     setActiveType(type);
+    setActiveSource('');
+    setPage(1);
+  };
+
+  const handleSourceChange = (value: string) => {
+    setActiveSource(value);
     setPage(1);
   };
 
@@ -73,16 +89,36 @@ export default function RulesetDetailPage() {
         ))}
       </div>
 
-      {/* Search */}
-      <div className="relative mb-4">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={18} />
-        <input
-          type="text"
-          placeholder={`Search ${pluralize(activeType)}...`}
-          value={search}
-          onChange={(e) => handleSearchChange(e.target.value)}
-          className="w-full pl-10 pr-4 py-2 bg-surface border border-edge rounded-lg text-heading focus:outline-none focus:border-accent"
-        />
+      {/* Source selector + Search row */}
+      <div className="flex flex-col sm:flex-row gap-3 mb-4">
+        {sources && sources.length > 1 && (
+          <select
+            value={activeSource}
+            onChange={(e) => handleSourceChange(e.target.value)}
+            className="px-3 py-2 bg-surface border border-edge rounded-lg text-sm text-heading focus:outline-none focus:border-accent sm:w-64"
+          >
+            <option value="">
+              {defaultSource ? `Default (${defaultSource.display_name})` : 'Default'}
+            </option>
+            <option value="all">All Sources</option>
+            {sources.map((s) => (
+              <option key={s.key} value={s.key}>
+                {s.display_name} ({s.entity_count})
+              </option>
+            ))}
+          </select>
+        )}
+
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={18} />
+          <input
+            type="text"
+            placeholder={`Search ${pluralize(activeType)}...`}
+            value={search}
+            onChange={(e) => handleSearchChange(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 bg-surface border border-edge rounded-lg text-heading focus:outline-none focus:border-accent"
+          />
+        </div>
       </div>
 
       {/* Results count */}
@@ -96,9 +132,19 @@ export default function RulesetDetailPage() {
           <Link
             key={entity.id}
             to={`/rulesets/${ruleset.id}/entities/${entity.id}`}
-            className="block px-4 py-2.5 bg-surface border border-edge rounded-lg hover:border-edge-hover transition-colors"
+            className="flex items-center justify-between px-4 py-2.5 bg-surface border border-edge rounded-lg hover:border-edge-hover transition-colors"
           >
             <span className="text-heading">{entity.name}</span>
+            {activeSource === 'all' && entity.document_key && (
+              <span className="text-xs text-muted ml-2 shrink-0">
+                {sources?.find((s) => s.key === entity.document_key)?.display_name ?? entity.document_key}
+              </span>
+            )}
+            {activeSource === '' && entity.document_key && entity.document_key !== defaultSource?.key && (
+              <span className="text-xs text-muted ml-2 shrink-0">
+                {sources?.find((s) => s.key === entity.document_key)?.display_name ?? entity.document_key}
+              </span>
+            )}
           </Link>
         ))}
       </div>

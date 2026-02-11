@@ -26,7 +26,18 @@ export interface RulesetEntity {
   entity_type: string;
   source_key: string;
   name: string;
+  document_key?: string;
   entity_data?: EntityData;
+}
+
+export interface RulesetSource {
+  key: string;
+  display_name: string;
+  publisher: string;
+  gamesystem: string;
+  priority: number;
+  is_default: boolean;
+  entity_count: number;
 }
 
 export interface Campaign {
@@ -112,4 +123,5 @@ export interface PaginatedResponse<T> {
   page: number;
   pages: number;
   per_page: number;
+  active_source?: string;
 }

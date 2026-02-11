@@ -85,9 +85,12 @@ def seed_open5e() -> None:
                 source_key=str(source_key),
             ).first()
 
+            document_key = item.get("document", {}).get("key") if isinstance(item.get("document"), dict) else None
+
             if existing:
                 existing.name = name
                 existing.entity_data = json.dumps(item)
+                existing.document_key = document_key
             else:
                 entity = RulesetEntity(
                     ruleset_id=ruleset.id,
@@ -95,6 +98,7 @@ def seed_open5e() -> None:
                     source_key=str(source_key),
                     name=name,
                     entity_data=json.dumps(item),
+                    document_key=document_key,
                 )
                 db.session.add(entity)
 
@@ -102,4 +106,63 @@ def seed_open5e() -> None:
 
         db.session.commit()
 
+    # Rebuild source metadata from seeded entities
+    _rebuild_source_config(ruleset)
+
     click.echo(f"\nDone! Seeded {total} entities total.")
+
+
+# Priority tiers for source ordering
+_OFFICIAL_KEYS = ["srd-2024", "srd-2014", "bfrd"]
+
+
+def _rebuild_source_config(ruleset: Ruleset) -> None:
+    """Rebuild the sources array in ruleset.source_config from entity document_keys."""
+    from sqlalchemy import func
+
+    rows = (
+        db.session.query(RulesetEntity.document_key, func.count())
+        .filter(RulesetEntity.ruleset_id == ruleset.id, RulesetEntity.document_key.isnot(None))
+        .group_by(RulesetEntity.document_key)
+        .all()
+    )
+
+    sources = []
+    for doc_key, count in rows:
+        sample = RulesetEntity.query.filter_by(
+            ruleset_id=ruleset.id, document_key=doc_key
+        ).first()
+        display_name = doc_key
+        publisher = "Unknown"
+        gamesystem = ""
+        if sample:
+            data = sample.get_entity_data()
+            doc = data.get("document", {})
+            display_name = doc.get("display_name") or doc.get("name") or doc_key
+            pub = doc.get("publisher", {})
+            publisher = pub.get("name", "Unknown") if isinstance(pub, dict) else str(pub)
+            gs = doc.get("gamesystem", {})
+            gamesystem = gs.get("key", "") if isinstance(gs, dict) else str(gs)
+
+        priority = (_OFFICIAL_KEYS.index(doc_key) + 1) if doc_key in _OFFICIAL_KEYS else 100
+        sources.append({
+            "key": doc_key,
+            "display_name": display_name,
+            "publisher": publisher,
+            "gamesystem": gamesystem,
+            "priority": priority,
+            "is_default": doc_key == "srd-2024",
+            "entity_count": count,
+        })
+
+    official = sorted([s for s in sources if s["priority"] < 100], key=lambda s: s["priority"])
+    third_party = sorted([s for s in sources if s["priority"] >= 100], key=lambda s: s["display_name"])
+    all_sources = official + third_party
+    for i, s in enumerate(all_sources):
+        s["priority"] = i + 1
+
+    config = ruleset.get_source_config()
+    config["sources"] = all_sources
+    ruleset.source_config = json.dumps(config)
+    db.session.commit()
+    click.echo(f"\nRebuilt source metadata: {len(all_sources)} sources")
