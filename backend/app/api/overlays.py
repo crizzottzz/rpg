@@ -163,7 +163,7 @@ def update_overlay(overlay_id: str) -> tuple[Response, int] | Response:
 
 @overlays_bp.route("/api/overlays/<overlay_id>", methods=["DELETE"])
 @jwt_required
-def delete_overlay(overlay_id: str) -> tuple[str, int] | tuple[Response, int]:
+def delete_overlay(overlay_id: str) -> tuple[Response, int]:
     """
     Delete an overlay.
 
@@ -190,4 +190,4 @@ def delete_overlay(overlay_id: str) -> tuple[str, int] | tuple[Response, int]:
     deleted = overlay_service.delete_overlay(overlay_id, request.current_user.id)
     if not deleted:
         return jsonify({"error": "Overlay not found"}), 404
-    return '', 204
+    return jsonify(''), 204

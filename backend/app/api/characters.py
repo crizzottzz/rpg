@@ -237,7 +237,7 @@ def update_character(character_id: str) -> tuple[Response, int] | Response:
 
 @characters_bp.route("/api/characters/<character_id>", methods=["DELETE"])
 @jwt_required
-def delete_character(character_id: str) -> tuple[str, int] | tuple[Response, int]:
+def delete_character(character_id: str) -> tuple[Response, int]:
     """
     Delete a character.
 
@@ -266,4 +266,4 @@ def delete_character(character_id: str) -> tuple[str, int] | tuple[Response, int
     )
     if not deleted:
         return jsonify({"error": "Character not found"}), 404
-    return '', 204
+    return jsonify(''), 204

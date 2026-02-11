@@ -186,7 +186,7 @@ def update_campaign(campaign_id: str) -> tuple[Response, int] | Response:
 
 @campaigns_bp.route("/api/campaigns/<campaign_id>", methods=["DELETE"])
 @jwt_required
-def delete_campaign(campaign_id: str) -> tuple[str, int] | tuple[Response, int]:
+def delete_campaign(campaign_id: str) -> tuple[Response, int]:
     """
     Delete a campaign and all its characters.
 
@@ -213,4 +213,4 @@ def delete_campaign(campaign_id: str) -> tuple[str, int] | tuple[Response, int]:
     deleted = campaign_service.delete_campaign(campaign_id, request.current_user.id)
     if not deleted:
         return jsonify({"error": "Campaign not found"}), 404
-    return '', 204
+    return jsonify(''), 204

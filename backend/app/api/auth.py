@@ -1,9 +1,29 @@
+import time
+from collections import defaultdict
+
 from flask import Blueprint, Response, request, jsonify
 
 from app.services import auth_service
 from app.utils.auth import jwt_required
 
 auth_bp = Blueprint("auth", __name__)
+
+# Simple in-memory rate limiter: max 5 failed attempts per IP per 15-minute window
+_login_attempts: dict[str, list[float]] = defaultdict(list)
+_MAX_ATTEMPTS = 5
+_WINDOW_SECONDS = 900
+
+
+def _check_rate_limit(ip: str) -> bool:
+    """Return True if the IP is rate-limited."""
+    now = time.monotonic()
+    attempts = _login_attempts[ip]
+    _login_attempts[ip] = [t for t in attempts if now - t < _WINDOW_SECONDS]
+    return len(_login_attempts[ip]) >= _MAX_ATTEMPTS
+
+
+def _record_failed_attempt(ip: str) -> None:
+    _login_attempts[ip].append(time.monotonic())
 
 
 @auth_bp.route("/api/auth/login", methods=["POST"])
@@ -47,7 +67,13 @@ def login() -> tuple[Response, int] | Response:
         description: Request body required
       401:
         description: Invalid credentials
+      429:
+        description: Too many login attempts
     """
+    client_ip = request.remote_addr or "unknown"
+    if _check_rate_limit(client_ip):
+        return jsonify({"error": "Too many login attempts. Try again later."}), 429
+
     data = request.get_json()
     if not data:
         return jsonify({"error": "Request body required"}), 400
@@ -58,6 +84,7 @@ def login() -> tuple[Response, int] | Response:
             data.get("password", ""),
         )
     except ValueError as e:
+        _record_failed_attempt(client_ip)
         return jsonify({"error": str(e)}), 401
 
     return jsonify(result)
