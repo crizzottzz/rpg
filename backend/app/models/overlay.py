@@ -21,6 +21,13 @@ class UserOverlay(db.Model):
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc),
                            onupdate=lambda: datetime.now(timezone.utc))
 
+    __table_args__ = (
+        db.UniqueConstraint(
+            "user_id", "ruleset_id", "entity_type", "source_key", "campaign_id",
+            name="uq_user_overlay_entity",
+        ),
+    )
+
     def get_overlay_data(self) -> dict:
         """Parse the JSON overlay_data column."""
         return json.loads(self.overlay_data) if self.overlay_data else {}

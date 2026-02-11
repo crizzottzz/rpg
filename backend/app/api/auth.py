@@ -1,7 +1,7 @@
 from flask import Blueprint, Response, request, jsonify
 
-from app.models.user import User
-from app.utils.auth import create_access_token, create_refresh_token, decode_token, jwt_required
+from app.services import auth_service
+from app.utils.auth import jwt_required
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -52,18 +52,15 @@ def login() -> tuple[Response, int] | Response:
     if not data:
         return jsonify({"error": "Request body required"}), 400
 
-    username = data.get("username", "")
-    password = data.get("password", "")
+    try:
+        result = auth_service.authenticate_user(
+            data.get("username", ""),
+            data.get("password", ""),
+        )
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 401
 
-    user = User.query.filter_by(username=username).first()
-    if not user or not user.check_password(password):
-        return jsonify({"error": "Invalid credentials"}), 401
-
-    return jsonify({
-        "access_token": create_access_token(user.id),
-        "refresh_token": create_refresh_token(user.id),
-        "user": user.to_dict(),
-    })
+    return jsonify(result)
 
 
 @auth_bp.route("/api/auth/refresh", methods=["POST"])
@@ -104,19 +101,11 @@ def refresh() -> tuple[Response, int] | Response:
         return jsonify({"error": "Refresh token required"}), 400
 
     try:
-        payload = decode_token(data["refresh_token"])
-        if payload.get("type") != "refresh":
-            return jsonify({"error": "Invalid token type"}), 401
-    except Exception:
-        return jsonify({"error": "Invalid or expired refresh token"}), 401
+        result = auth_service.refresh_access_token(data["refresh_token"])
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 401
 
-    user = User.query.get(payload["sub"])
-    if not user:
-        return jsonify({"error": "User not found"}), 401
-
-    return jsonify({
-        "access_token": create_access_token(user.id),
-    })
+    return jsonify(result)
 
 
 @auth_bp.route("/api/auth/me")

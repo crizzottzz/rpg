@@ -1,9 +1,6 @@
-import json
 from flask import Blueprint, Response, request, jsonify
 
-from app.extensions import db
-from app.models.character import Character
-from app.models.campaign import Campaign
+from app.services import character_service
 from app.utils.auth import jwt_required
 
 characters_bp = Blueprint("characters", __name__)
@@ -26,18 +23,7 @@ def list_all_characters() -> Response:
       401:
         description: Not authenticated
     """
-    rows = (
-        db.session.query(Character, Campaign.name)
-        .join(Campaign, Character.campaign_id == Campaign.id)
-        .filter(Character.user_id == request.current_user.id)
-        .order_by(Character.name)
-        .all()
-    )
-    characters = []
-    for char, campaign_name in rows:
-        d = char.to_dict()
-        d["campaign_name"] = campaign_name
-        characters.append(d)
+    characters = character_service.list_all_characters(request.current_user.id)
     return jsonify({"characters": characters})
 
 
@@ -67,14 +53,14 @@ def list_characters(campaign_id: str) -> tuple[Response, int] | Response:
       404:
         description: Campaign not found
     """
-    campaign = Campaign.query.filter_by(
-        id=campaign_id, user_id=request.current_user.id
-    ).first()
-    if not campaign:
-        return jsonify({"error": "Campaign not found"}), 404
+    try:
+        characters = character_service.list_by_campaign(
+            campaign_id, request.current_user.id
+        )
+    except LookupError as e:
+        return jsonify({"error": str(e)}), 404
 
-    characters = Character.query.filter_by(campaign_id=campaign_id).all()
-    return jsonify({"characters": [c.to_dict() for c in characters]})
+    return jsonify({"characters": characters})
 
 
 @characters_bp.route("/api/campaigns/<campaign_id>/characters", methods=["POST"])
@@ -137,33 +123,20 @@ def create_character(campaign_id: str) -> tuple[Response, int] | Response:
       404:
         description: Campaign not found
     """
-    campaign = Campaign.query.filter_by(
-        id=campaign_id, user_id=request.current_user.id
-    ).first()
-    if not campaign:
-        return jsonify({"error": "Campaign not found"}), 404
-
     data = request.get_json()
     if not data:
         return jsonify({"error": "Request body required"}), 400
 
-    if not data.get("name"):
-        return jsonify({"error": "Missing required fields", "detail": "name is required"}), 400
+    try:
+        character = character_service.create_character(
+            campaign_id, request.current_user.id, data
+        )
+    except LookupError as e:
+        return jsonify({"error": str(e)}), 404
+    except ValueError as e:
+        return jsonify({"error": "Missing required fields", "detail": str(e)}), 400
 
-    character = Character(
-        campaign_id=campaign_id,
-        user_id=request.current_user.id,
-        name=data["name"],
-        character_type=data.get("character_type", "pc"),
-        level=data.get("level", 1),
-        core_data=json.dumps(data.get("core_data", {})),
-        class_data=json.dumps(data.get("class_data", {})),
-        equipment=json.dumps(data.get("equipment", [])),
-        spells=json.dumps(data.get("spells", [])),
-    )
-    db.session.add(character)
-    db.session.commit()
-    return jsonify({"character": character.to_dict()}), 201
+    return jsonify({"character": character}), 201
 
 
 @characters_bp.route("/api/characters/<character_id>")
@@ -192,12 +165,12 @@ def get_character(character_id: str) -> tuple[Response, int] | Response:
       404:
         description: Character not found
     """
-    character = Character.query.filter_by(
-        id=character_id, user_id=request.current_user.id
-    ).first()
-    if not character:
+    character = character_service.get_character(
+        character_id, request.current_user.id
+    )
+    if character is None:
         return jsonify({"error": "Character not found"}), 404
-    return jsonify({"character": character.to_dict()})
+    return jsonify({"character": character})
 
 
 @characters_bp.route("/api/characters/<character_id>", methods=["PUT"])
@@ -250,33 +223,16 @@ def update_character(character_id: str) -> tuple[Response, int] | Response:
       404:
         description: Character not found
     """
-    character = Character.query.filter_by(
-        id=character_id, user_id=request.current_user.id
-    ).first()
-    if not character:
-        return jsonify({"error": "Character not found"}), 404
-
     data = request.get_json()
     if not data:
         return jsonify({"error": "Request body required"}), 400
 
-    if "name" in data:
-        character.name = data["name"]
-    if "character_type" in data:
-        character.character_type = data["character_type"]
-    if "level" in data:
-        character.level = data["level"]
-    if "core_data" in data:
-        character.core_data = json.dumps(data["core_data"])
-    if "class_data" in data:
-        character.class_data = json.dumps(data["class_data"])
-    if "equipment" in data:
-        character.equipment = json.dumps(data["equipment"])
-    if "spells" in data:
-        character.spells = json.dumps(data["spells"])
-
-    db.session.commit()
-    return jsonify({"character": character.to_dict()})
+    character = character_service.update_character(
+        character_id, request.current_user.id, data
+    )
+    if character is None:
+        return jsonify({"error": "Character not found"}), 404
+    return jsonify({"character": character})
 
 
 @characters_bp.route("/api/characters/<character_id>", methods=["DELETE"])
@@ -305,12 +261,9 @@ def delete_character(character_id: str) -> tuple[str, int] | tuple[Response, int
       404:
         description: Character not found
     """
-    character = Character.query.filter_by(
-        id=character_id, user_id=request.current_user.id
-    ).first()
-    if not character:
+    deleted = character_service.delete_character(
+        character_id, request.current_user.id
+    )
+    if not deleted:
         return jsonify({"error": "Character not found"}), 404
-
-    db.session.delete(character)
-    db.session.commit()
     return '', 204

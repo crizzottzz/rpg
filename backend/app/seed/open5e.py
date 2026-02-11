@@ -38,7 +38,7 @@ def fetch_all_pages(endpoint: str, limit: int = 100) -> list[dict]:
             resp = requests.get(url, timeout=30)
             resp.raise_for_status()
             data = resp.json()
-        except Exception as e:
+        except requests.RequestException as e:
             click.echo(f"  Error fetching {url}: {e}")
             break
 
