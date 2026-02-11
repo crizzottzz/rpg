@@ -1,4 +1,5 @@
 import { Navigate } from 'react-router-dom';
+import Spinner from './spinner';
 import { useAuthStore } from '../stores/auth-store';
 
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -6,8 +7,8 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-page text-label">
-        Loading...
+      <div className="flex items-center justify-center h-screen bg-page">
+        <Spinner />
       </div>
     );
   }

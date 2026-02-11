@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import Spinner from '../components/spinner';
 import { getRuleset, listEntities } from '../api/rulesets';
 import { useApiCache } from '../hooks/use-api-cache';
 import { pluralize } from '../utils/pluralize';
@@ -18,9 +19,11 @@ export default function RulesetDetailPage() {
   );
 
   // Auto-select first type once ruleset loads
-  if (ruleset && ruleset.entity_types.length > 0 && !activeType) {
-    setActiveType(ruleset.entity_types[0]);
-  }
+  useEffect(() => {
+    if (ruleset && ruleset.entity_types.length > 0 && !activeType) {
+      setActiveType(ruleset.entity_types[0]);
+    }
+  }, [ruleset, activeType]);
 
   const { data: entityPage } = useApiCache(
     listEntities,
@@ -42,7 +45,7 @@ export default function RulesetDetailPage() {
     setPage(1);
   };
 
-  if (loadingRuleset || !ruleset) return <div className="p-8 text-label">Loading...</div>;
+  if (loadingRuleset || !ruleset) return <Spinner />;
 
   return (
     <div className="p-4 sm:p-8">
@@ -107,6 +110,7 @@ export default function RulesetDetailPage() {
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page <= 1}
             className="p-2 text-label hover:text-content disabled:opacity-30"
+            aria-label="Previous page"
           >
             <ChevronLeft size={20} />
           </button>
@@ -117,6 +121,7 @@ export default function RulesetDetailPage() {
             onClick={() => setPage((p) => Math.min(pages, p + 1))}
             disabled={page >= pages}
             className="p-2 text-label hover:text-content disabled:opacity-30"
+            aria-label="Next page"
           >
             <ChevronRight size={20} />
           </button>

@@ -1,4 +1,5 @@
 import { useParams, Link } from 'react-router-dom';
+import Spinner from '../components/spinner';
 import { getEntity } from '../api/rulesets';
 import { useApiCache } from '../hooks/use-api-cache';
 import EntityRenderer from '../features/entities/entity-renderer';
@@ -11,7 +12,7 @@ export default function EntityDetailPage() {
     { enabled: !!rulesetId && !!entityId },
   );
 
-  if (loading) return <div className="p-8 text-label">Loading...</div>;
+  if (loading) return <Spinner />;
   if (!entity) return <div className="p-8 text-danger">Entity not found</div>;
 
   return (

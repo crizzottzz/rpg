@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Trash2, Save, X } from 'lucide-react';
+import ConfirmDialog from '../components/confirm-dialog';
+import Spinner from '../components/spinner';
 import { getCharacter, updateCharacter, deleteCharacter } from '../api/characters';
 import { useApiCache, invalidateCache } from '../hooks/use-api-cache';
 import type { AbilityScores } from '../types';
@@ -107,14 +109,17 @@ export default function CharacterDetailPage() {
     setEditing(false);
   };
 
-  const handleDelete = async () => {
-    if (!characterId || !confirm('Delete this character?')) return;
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
+  const handleDelete = useCallback(async () => {
+    if (!characterId) return;
     await deleteCharacter(characterId);
     invalidateCache('listCharacters');
+    invalidateCache('listAllCharacters');
     navigate(`/campaigns/${character?.campaign_id}`);
-  };
+  }, [characterId, character?.campaign_id, navigate]);
 
-  if (loading) return <div className="p-4 sm:p-8 text-label">Loading...</div>;
+  if (loading) return <Spinner />;
   if (!character) return <div className="p-4 sm:p-8 text-danger">Character not found</div>;
 
   const core = character.core_data;
@@ -192,7 +197,7 @@ export default function CharacterDetailPage() {
             </button>
           )}
           <button
-            onClick={handleDelete}
+            onClick={() => setConfirmOpen(true)}
             className="text-muted hover:text-danger transition-colors p-2"
             aria-label="Delete character"
           >
@@ -200,6 +205,13 @@ export default function CharacterDetailPage() {
           </button>
         </div>
       </div>
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Delete Character"
+        message="Delete this character? This cannot be undone."
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmOpen(false)}
+      />
 
       {/* Ability Scores */}
       <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 mb-6">

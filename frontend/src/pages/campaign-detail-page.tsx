@@ -1,5 +1,8 @@
+import { useState, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Plus, Trash2, Users } from 'lucide-react';
+import ConfirmDialog from '../components/confirm-dialog';
+import Spinner from '../components/spinner';
 import { getCampaign, deleteCampaign } from '../api/campaigns';
 import { listCharacters } from '../api/characters';
 import { useApiCache, invalidateCache } from '../hooks/use-api-cache';
@@ -19,14 +22,16 @@ export default function CampaignDetailPage() {
     { enabled: !!id },
   );
 
-  const handleDelete = async () => {
-    if (!id || !confirm('Delete this campaign and all its characters?')) return;
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
+  const handleDelete = useCallback(async () => {
+    if (!id) return;
     await deleteCampaign(id);
     invalidateCache('listCampaigns');
     navigate('/campaigns');
-  };
+  }, [id, navigate]);
 
-  if (loadingCampaign || loadingChars) return <div className="p-8 text-label">Loading...</div>;
+  if (loadingCampaign || loadingChars) return <Spinner />;
   if (!campaign) return <div className="p-8 text-danger">Campaign not found</div>;
 
   return (
@@ -43,13 +48,20 @@ export default function CampaignDetailPage() {
           <span className="text-xs text-muted capitalize">{campaign.status}</span>
         </div>
         <button
-          onClick={handleDelete}
+          onClick={() => setConfirmOpen(true)}
           className="text-muted hover:text-danger transition-colors p-2"
           aria-label="Delete campaign"
         >
           <Trash2 size={20} />
         </button>
       </div>
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Delete Campaign"
+        message="Delete this campaign and all its characters? This cannot be undone."
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmOpen(false)}
+      />
 
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold text-content">Characters</h2>
