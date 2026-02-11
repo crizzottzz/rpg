@@ -5,7 +5,7 @@ from flasgger import Swagger
 from config import Config
 from app.extensions import db, migrate
 from app.utils.errors import register_error_handlers
-from app.utils.logging import init_logging
+from app.utils.logging import init_logging, register_access_logging
 
 SWAGGER_CONFIG = {
     "headers": [],
@@ -46,6 +46,7 @@ def create_app(config_class=Config):
 
     # Logging
     init_logging()
+    register_access_logging(app)
 
     # Extensions
     db.init_app(app)
@@ -77,6 +78,9 @@ def create_app(config_class=Config):
 
     from app.api.overlays import overlays_bp
     app.register_blueprint(overlays_bp)
+
+    from app.api.logs import logs_bp
+    app.register_blueprint(logs_bp)
 
     # CLI commands
     from app.seed.commands import register_commands

@@ -82,7 +82,13 @@ export default function AppShell() {
         </nav>
         <div className="p-4 border-t border-edge">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-label">{user?.username}</span>
+            <a
+              href="/api/logs"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-label hover:text-accent transition-colors"
+              title="Open live logs"
+            >{user?.username}</a>
             <button
               onClick={logout}
               className="text-muted hover:text-content transition-colors"

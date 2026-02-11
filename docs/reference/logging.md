@@ -31,6 +31,7 @@ Application code
     ↓
   Handlers attached to root
     ├── StreamHandler     → stdout/stderr (container-friendly)
+    ├── SSELogHandler     → per-subscriber queues → /api/logs/stream
     ├── FileHandler       → log files (optional)
     └── (future handlers) → database, telemetry, etc.
 ```
@@ -107,6 +108,52 @@ These events flow through the same handler pipeline. A custom handler can filter
 
 ---
 
+## Access Logging
+
+HTTP access logs are generated via `before_request`/`after_request` hooks registered in `create_app()`. Every request is logged as:
+
+```
+INFO app.access: GET /api/campaigns 200 25ms
+```
+
+The access logger uses the named logger `app.access`, which propagates to root and appears in all handlers (console, SSE, future file handler).
+
+The SSE stream endpoint itself (`/api/logs/stream`) is excluded from access logging to prevent feedback loops.
+
+---
+
+## Live Log Streaming (SSE)
+
+`GET /api/logs/stream` provides a Server-Sent Events endpoint for real-time log viewing from a browser.
+
+### How It Works
+
+`SSELogHandler` is a `logging.Handler` subclass attached to the root logger. It maintains a list of per-subscriber `queue.Queue` instances. When a log record is emitted, it fans out the formatted message to all subscriber queues.
+
+The SSE endpoint creates a subscriber queue, then yields messages as `data:` events. Heartbeats (`: heartbeat\n\n`) are sent every 30s to keep the connection alive.
+
+### Authentication
+
+Supports both `Authorization: Bearer <token>` header and `?token=<jwt>` query parameter. The query param fallback exists because the browser `EventSource` API does not support custom headers.
+
+### Usage
+
+```javascript
+// Browser
+const token = localStorage.getItem('access_token');
+const es = new EventSource(`/api/logs/stream?token=${token}`);
+es.onmessage = (e) => console.log(e.data);
+
+// curl
+curl -N "http://localhost:5000/api/logs/stream?token=<jwt>"
+```
+
+### Back-Pressure
+
+Each subscriber queue is bounded (200 records). If a slow consumer fills its queue, the oldest record is dropped to make room for the newest.
+
+---
+
 ## Guidelines
 
 ### Do
@@ -130,4 +177,4 @@ These events flow through the same handler pipeline. A custom handler can filter
 - Database handler for high-value events (WARNING+ or audit events)
 - External observability integration (if the app moves to production)
 - Request ID correlation across log entries
-- Log level configuration via environment variable
+- Frontend log viewer page (consume SSE stream in a React component)
