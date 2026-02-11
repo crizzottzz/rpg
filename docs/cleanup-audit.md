@@ -75,7 +75,7 @@ Target: Web-first responsive design, installable as PWA. Electron/Capacitor defe
 
 - [x] **Add error boundaries** — `ErrorBoundary` component wrapping `AppShell` in `App.tsx`.
 - [x] **Form validation with React Hook Form + Zod** — Both `new-campaign-page.tsx` and `new-character-page.tsx` migrated to RHF + Zod.
-- [ ] **Tighten TypeScript types** — `entity_data` is `Record<string, unknown>` (too loose). `class_data` same. Define more specific types or use Zod schemas shared between validation and types.
+- [x] **Tighten TypeScript types** — Added `ClassData`, `EquipmentItem`, `SpellEntry`, `CampaignSettings`, `EntityData` types. Kept `EntityData` as `Record<string, unknown>` (intentional — schema-driven rendering). Removed type casts in consuming code.
 - [x] **Add ARIA labels** — Added `aria-label` to pagination and icon buttons.
 
 ### P3 — Polish

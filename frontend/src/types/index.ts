@@ -2,6 +2,8 @@ export interface User {
   id: string;
   username: string;
   email: string;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
 export interface Ruleset {
@@ -11,7 +13,12 @@ export interface Ruleset {
   source_type: string;
   entity_types: string[];
   entity_count: number;
+  created_at: string | null;
+  updated_at: string | null;
 }
+
+/** Raw entity data blob from Open5e or other sources. Schema-driven — shape varies by entity type. */
+export type EntityData = Record<string, unknown>;
 
 export interface RulesetEntity {
   id: string;
@@ -19,7 +26,7 @@ export interface RulesetEntity {
   entity_type: string;
   source_key: string;
   name: string;
-  entity_data?: Record<string, unknown>;
+  entity_data?: EntityData;
 }
 
 export interface Campaign {
@@ -28,12 +35,27 @@ export interface Campaign {
   ruleset_id: string;
   name: string;
   description: string;
-  status: string;
-  settings: Record<string, unknown>;
+  status: 'active' | 'paused' | 'completed';
+  settings: CampaignSettings;
   created_at: string;
   updated_at: string;
   character_count: number;
 }
+
+export interface CampaignSettings {
+  [key: string]: unknown;
+}
+
+export interface ClassData {
+  name?: string;
+  [key: string]: unknown;
+}
+
+/** Equipment can be a simple name string or a structured object. */
+export type EquipmentItem = string | { name: string; [key: string]: unknown };
+
+/** Spell reference can be a simple name string or a structured object. */
+export type SpellEntry = string | { name: string; [key: string]: unknown };
 
 export interface Character {
   id: string;
@@ -43,9 +65,9 @@ export interface Character {
   character_type: 'pc' | 'npc';
   level: number;
   core_data: CoreData;
-  class_data: Record<string, unknown>;
-  equipment: unknown[];
-  spells: unknown[];
+  class_data: ClassData;
+  equipment: EquipmentItem[];
+  spells: SpellEntry[];
   created_at: string;
   updated_at: string;
 }

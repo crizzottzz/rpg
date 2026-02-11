@@ -126,7 +126,7 @@ export default function CharacterDetailPage() {
   const scores = editing
     ? editScores
     : core.ability_scores || { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 };
-  const classData = character.class_data as Record<string, unknown>;
+  const classData = character.class_data;
 
   const inputClass =
     'w-full px-2 py-1 bg-subtle border border-edge-hover rounded text-heading text-center focus:outline-none focus:border-accent';
