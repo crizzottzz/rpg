@@ -20,4 +20,6 @@ class Config:
     SEED_PASSWORD = os.environ.get("SEED_PASSWORD", "dungeon_master_2025")
     SEED_EMAIL = os.environ.get("SEED_EMAIL", "dm@rpg.local")
 
+    MAX_CONTENT_LENGTH = 2 * 1024 * 1024  # 2 MB
+
     SWAGGER = {"openapi": "3.0.3"}

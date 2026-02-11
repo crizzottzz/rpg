@@ -25,16 +25,16 @@ Target: Web-first responsive design, installable as PWA. Electron/Capacitor defe
 
 ### P1 — Layout Fixes
 
-- [ ] **Collapsible sidebar for mobile** — `app-shell.tsx` uses fixed `w-64` (256px). On phone-width screens the main content is nearly unusable. Needs hamburger menu or drawer pattern with breakpoint toggle (e.g., `lg:` shows sidebar, below `lg:` uses overlay drawer).
-- [ ] **Responsive ability score grid** — `character-detail-page.tsx:97` uses `grid-cols-6` with no responsive variant. On phones, 6 columns are unreadable. Use `grid-cols-3 sm:grid-cols-6` (2 rows of 3 on mobile).
-- [ ] **Responsive new-character form** — `new-character-page.tsx` ability score inputs also use `grid-cols-6`. Same fix needed.
-- [ ] **Page padding responsive** — Most pages use `p-8`. Should be `p-4 md:p-8` for mobile breathing room.
-- [ ] **Touch targets** — Icon buttons (delete, edit) are small. Minimum 44x44px tap targets per WCAG. Add padding or min-w/min-h.
+- [x] **Collapsible sidebar for mobile** — `app-shell.tsx` uses fixed `w-64` (256px). On phone-width screens the main content is nearly unusable. Needs hamburger menu or drawer pattern with breakpoint toggle (e.g., `lg:` shows sidebar, below `lg:` uses overlay drawer).
+- [x] **Responsive ability score grid** — `character-detail-page.tsx:97` uses `grid-cols-6` with no responsive variant. On phones, 6 columns are unreadable. Use `grid-cols-3 sm:grid-cols-6` (2 rows of 3 on mobile).
+- [x] **Responsive new-character form** — `new-character-page.tsx` ability score inputs also use `grid-cols-6`. Same fix needed.
+- [x] **Page padding responsive** — Most pages use `p-8`. Should be `p-4 md:p-8` for mobile breathing room.
+- [x] **Touch targets** — Icon buttons (delete, edit) are small. Minimum 44x44px tap targets per WCAG. Add padding or min-w/min-h.
 
 ### P2 — PWA Setup
 
 - [ ] **Add web app manifest** — No `manifest.json` exists. Need name, icons, theme color, display: standalone, start_url.
-- [ ] **App title** — `index.html` title is "frontend". Change to actual app name.
+- [x] **App title** — Changed to "RPG Platform".
 - [ ] **App icons** — Currently using default `vite.svg`. Need proper icons (192px, 512px).
 - [ ] **Viewport meta** — Exists and is correct (`width=device-width, initial-scale=1.0`). No action needed.
 - [ ] **Service worker** — Add via `vite-plugin-pwa` for offline caching of static assets. Not full offline support yet, just asset caching.
@@ -51,22 +51,9 @@ Target: Web-first responsive design, installable as PWA. Electron/Capacitor defe
 
 ### P1 — Theme Token System
 
-- [ ] **Define CSS custom properties** — Standards doc says "all visual values reference theme tokens." Currently every Tailwind class is hardcoded (`bg-gray-900`, `text-amber-400`, etc.). Define a token layer in `index.css` or a `theme.css`:
-  ```css
-  :root {
-    --color-surface: theme(colors.gray.900);
-    --color-surface-alt: theme(colors.gray.800);
-    --color-border: theme(colors.gray.800);
-    --color-text-primary: theme(colors.gray.100);
-    --color-text-secondary: theme(colors.gray.400);
-    --color-text-muted: theme(colors.gray.500);
-    --color-accent: theme(colors.amber.400);
-    --color-accent-hover: theme(colors.amber.500);
-    /* etc. */
-  }
-  ```
-- [ ] **Extend Tailwind config** — Map custom properties to Tailwind utilities so components use `bg-surface` instead of `bg-gray-900`. Tailwind v4 supports this natively via `@theme`.
-- [ ] **Migrate existing components** — Replace hardcoded color classes with token-based classes across all files. This is a bulk find-and-replace per color value.
+- [x] **Define CSS custom properties** — Semantic tokens defined in `index.css` using Tailwind v4 `@theme` directive.
+- [x] **Extend Tailwind config** — Mapped custom properties to Tailwind utilities (`bg-surface`, `text-accent`, etc.) via `@theme`.
+- [x] **Migrate existing components** — Replaced hardcoded color classes with token-based classes across all files.
 
 ### P2 — Theme Infrastructure
 
@@ -79,23 +66,23 @@ Target: Web-first responsive design, installable as PWA. Electron/Capacitor defe
 
 ### P1 — Bug Fixes
 
-- [ ] **Fix state mutation in render** — `ruleset-detail-page.tsx` calls `setActiveType()` inside the component body (not in useEffect). This causes React strict-mode double-renders and is an anti-pattern. Move to `useEffect`.
-- [ ] **Fix state mutation in render** — `new-campaign-page.tsx` has the same pattern with `setRulesetId()`.
-- [ ] **Fix N+1 character fetching** — `characters-page.tsx` loops through all campaigns, calling `listCharacters(campaignId)` for each. Should use a single `/api/characters` endpoint (see Backend section).
-- [ ] **Fix useApiCache bugs** — The `enabled` option doesn't fully prevent fetching. Cache key uses `fetcher.name` which can be empty for arrow functions. Add TTL support and bounded cache size.
+- [x] **Fix state mutation in render** — `ruleset-detail-page.tsx` `setActiveType()` wrapped in `useEffect`.
+- [x] **Fix state mutation in render** — `new-campaign-page.tsx` `setRulesetId()` wrapped in `useEffect`.
+- [x] **Fix N+1 character fetching** — Added `GET /api/characters` endpoint; `characters-page.tsx` uses single API call.
+- [x] **Fix useApiCache bugs** — Rewritten with TTL (5 min), bounded cache (100 entries), dev-mode warning for unnamed fetchers, proper `enabled` guard.
 
 ### P2 — Standards Compliance
 
-- [ ] **Add error boundaries** — No error boundaries exist. Add at least one wrapping the main content area in `App.tsx`. Consider per-page boundaries for graceful degradation.
-- [ ] **Form validation with React Hook Form + Zod** — Standards require this for complex forms. Currently `new-character-page.tsx` and `new-campaign-page.tsx` use raw `useState`. Migrate these two forms.
+- [x] **Add error boundaries** — `ErrorBoundary` component wrapping `AppShell` in `App.tsx`.
+- [x] **Form validation with React Hook Form + Zod** — Both `new-campaign-page.tsx` and `new-character-page.tsx` migrated to RHF + Zod.
 - [ ] **Tighten TypeScript types** — `entity_data` is `Record<string, unknown>` (too loose). `class_data` same. Define more specific types or use Zod schemas shared between validation and types.
-- [ ] **Add ARIA labels** — Icon-only buttons (delete, edit) lack accessible labels. Add `aria-label` attributes.
+- [x] **Add ARIA labels** — Added `aria-label` to pagination and icon buttons.
 
 ### P3 — Polish
 
-- [ ] **Loading states** — Current loading is bare `<div className="p-8 text-gray-400">Loading...</div>`. Consider skeleton screens or at least a spinner component.
-- [ ] **Empty states** — CampaignsPage has a good empty state with icon. Other pages (characters, rulesets) could use similar treatment.
-- [ ] **Confirm dialogs** — Using browser `confirm()` for deletes. Replace with a modal component for consistent UX (and cross-platform compatibility — `confirm()` looks different everywhere).
+- [x] **Loading states** — Created `Spinner` component, replaced all "Loading..." text across pages.
+- [x] **Empty states** — All list pages now have empty state treatment with icons.
+- [x] **Confirm dialogs** — Created `ConfirmDialog` modal component, replaced browser `confirm()` calls.
 
 ---
 
@@ -103,26 +90,26 @@ Target: Web-first responsive design, installable as PWA. Electron/Capacitor defe
 
 ### P1 — Service Layer Refactor
 
-- [ ] **Extract campaign service** — Move campaign CRUD logic from `api/campaigns.py` into `services/campaign_service.py`. Routes become thin HTTP handlers that call service methods.
-- [ ] **Extract character service** — Same for `api/characters.py` -> `services/character_service.py`.
-- [ ] **Extract overlay service** — Same for `api/overlays.py` -> `services/overlay_service.py`. The overlay deep-merge logic especially belongs in a service.
-- [ ] **Extract auth service** — Token creation/validation logic in `utils/auth.py` is fine, but login/refresh business logic should move from `api/auth.py` to `services/auth_service.py`.
-- [ ] **Extract ruleset service** — Entity listing with overlay merging in `api/rulesets.py` is complex enough to warrant a service.
-- [ ] **Add all-characters endpoint** — `GET /api/characters` that returns all characters for the current user across campaigns. Eliminates the N+1 problem on the frontend.
+- [x] **Extract campaign service** — `services/campaign_service.py` with full CRUD.
+- [x] **Extract character service** — `services/character_service.py` with full CRUD + cross-campaign listing.
+- [x] **Extract overlay service** — `services/overlay_service.py` with full CRUD.
+- [x] **Extract auth service** — `services/auth_service.py` with login/refresh logic + specific JWT exception handling.
+- [x] **Extract ruleset service** — `services/ruleset_service.py` with entity listing and overlay merging.
+- [x] **Add all-characters endpoint** — `GET /api/characters` returns all characters with campaign names.
 
 ### P2 — Data Integrity
 
-- [ ] **Add UserOverlay unique constraint** — Missing `UNIQUE(user_id, ruleset_id, entity_type, source_key, campaign_id)`. Currently allows duplicate overlays. Needs an Alembic migration.
-- [ ] **Add User timestamps** — `created_at`, `updated_at` missing on User model. Add via migration.
-- [ ] **Add Ruleset timestamps** — Same, missing `created_at`, `updated_at`.
+- [x] **Add UserOverlay unique constraint** — Added `UNIQUE(user_id, ruleset_id, entity_type, source_key, campaign_id)` via Alembic migration.
+- [x] **Add User timestamps** — Added `created_at`, `updated_at` to User model via migration.
+- [x] **Add Ruleset timestamps** — Added `created_at`, `updated_at` to Ruleset model via migration.
 - [ ] **Validate JSON payloads** — No validation on `core_data`, `class_data`, `equipment`, `spells` JSON blobs. Add Pydantic or Marshmallow schemas for request validation, at least on write endpoints.
-- [ ] **Consistent return types** — Route handlers have inconsistent return annotations (`tuple[Response, int] | Response`). Standardize to always return `tuple[Response, int]`.
+- [x] **Consistent return types** — Standardized delete handlers to `tuple[Response, int]`.
 
 ### P3 — Code Cleanup
 
-- [ ] **Specific exception handling** — `api/auth.py` refresh endpoint catches bare `Exception`. Should catch `jwt.ExpiredSignatureError`, `jwt.InvalidTokenError` specifically.
+- [x] **Specific exception handling** — `auth_service.py` catches `jwt.ExpiredSignatureError` and `jwt.InvalidTokenError` specifically.
 - [ ] **Model `to_dict()` return types** — Currently typed as `-> dict`. Use TypedDict for better IDE support.
-- [ ] **Seed error handling** — `open5e.py` catches generic `Exception` on fetch. Handle `requests.RequestException` specifically. Add retry logic for transient failures.
+- [x] **Seed error handling** — `open5e.py` catches `requests.RequestException` instead of bare `Exception`.
 
 ---
 
@@ -147,9 +134,9 @@ Target: Web-first responsive design, installable as PWA. Electron/Capacitor defe
 
 ### P2 — Hardening
 
-- [ ] **Rate limiting on login** — No protection against brute-force. Add `flask-limiter` or simple counter on `POST /api/auth/login`.
-- [ ] **Token refresh retry guard** — Frontend Axios interceptor can loop if refresh keeps failing. Add a flag to prevent concurrent refresh attempts and a max retry count.
-- [ ] **Input size limits** — No max size on JSON payloads (entity_data, etc.). Add `MAX_CONTENT_LENGTH` in Flask config.
+- [x] **Rate limiting on login** — In-memory rate limiter: 5 failed attempts per IP per 15-min window, returns 429.
+- [x] **Token refresh retry guard** — Axios interceptor coalesces concurrent refresh attempts into single request.
+- [x] **Input size limits** — Added `MAX_CONTENT_LENGTH = 2MB` in Flask config.
 
 ### P3 — Future Hardening
 
@@ -163,12 +150,12 @@ Target: Web-first responsive design, installable as PWA. Electron/Capacitor defe
 ### P2 — Developer Experience
 
 - [ ] **Add logging** — `docs/reference/logging.md` exists with full architecture but no logging is actually implemented. Add `init_logging()` call in `create_app()` with at least a StreamHandler.
-- [ ] **Ruff setup** — Standards mention ruff for linting/formatting but it's not configured. Add `ruff.toml` or `pyproject.toml` section.
+- [ ] ~~**Ruff setup**~~ — Deferred; codebase already follows PEP 8. Minimal dependency preference.
 - [ ] **ESLint config** — `eslint.config.js` exists with basic setup. Consider adding rules for: no-console (warn), consistent return types, import ordering.
 
 ### P3 — Nice-to-Have
 
-- [ ] **Hot reload for backend** — `run.py` uses `app.run(debug=True)` which enables reloader. Verify this works in the tmux setup.
+- [x] **Hot reload for backend** — Verified: `run.py` with `debug=True` auto-reloads in tmux.
 - [ ] **Database seeding idempotency** — `seed-user` creates user but `seed` overwrites entities. Document the expected seed flow and make it safe to run repeatedly.
 
 ---

@@ -12,6 +12,12 @@ export default function RulesetsPage() {
   return (
     <div className="p-4 sm:p-8 max-w-4xl">
       <h1 className="text-2xl font-bold text-heading mb-6">Rulesets</h1>
+      {(rulesets ?? []).length === 0 ? (
+        <div className="text-center py-12 text-muted">
+          <BookOpen className="mx-auto mb-3 opacity-50" size={40} />
+          <p>No rulesets available. Seed data to get started.</p>
+        </div>
+      ) : (
       <div className="space-y-3">
         {(rulesets ?? []).map((r) => (
           <Link
@@ -33,6 +39,7 @@ export default function RulesetsPage() {
           </Link>
         ))}
       </div>
+      )}
     </div>
   );
 }
