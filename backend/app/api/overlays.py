@@ -1,9 +1,6 @@
-import json
 from flask import Blueprint, Response, request, jsonify
 
-from app.extensions import db
-from app.models.overlay import UserOverlay
-from app.models.ruleset import Ruleset
+from app.services import overlay_service
 from app.utils.auth import jwt_required
 
 overlays_bp = Blueprint("overlays", __name__)
@@ -41,20 +38,13 @@ def list_overlays() -> Response:
       401:
         description: Not authenticated
     """
-    ruleset_id = request.args.get("ruleset_id")
-    campaign_id = request.args.get("campaign_id")
-    entity_type = request.args.get("entity_type")
-
-    query = UserOverlay.query.filter_by(user_id=request.current_user.id)
-    if ruleset_id:
-        query = query.filter_by(ruleset_id=ruleset_id)
-    if campaign_id:
-        query = query.filter_by(campaign_id=campaign_id)
-    if entity_type:
-        query = query.filter_by(entity_type=entity_type)
-
-    overlays = query.all()
-    return jsonify({"overlays": [o.to_dict() for o in overlays]})
+    overlays = overlay_service.list_overlays(
+        user_id=request.current_user.id,
+        ruleset_id=request.args.get("ruleset_id"),
+        campaign_id=request.args.get("campaign_id"),
+        entity_type=request.args.get("entity_type"),
+    )
+    return jsonify({"overlays": overlays})
 
 
 @overlays_bp.route("/api/overlays", methods=["POST"])
@@ -109,30 +99,14 @@ def create_overlay() -> tuple[Response, int] | Response:
     if not data:
         return jsonify({"error": "Request body required"}), 400
 
-    required = ["ruleset_id", "entity_type", "source_key", "overlay_type", "overlay_data"]
-    missing = [f for f in required if not data.get(f)]
-    if missing:
-        return jsonify({
-            "error": "Missing required fields",
-            "detail": f"{', '.join(missing)} required",
-        }), 400
+    try:
+        overlay = overlay_service.create_overlay(request.current_user.id, data)
+    except ValueError as e:
+        return jsonify({"error": "Missing required fields", "detail": str(e)}), 400
+    except LookupError as e:
+        return jsonify({"error": str(e)}), 404
 
-    ruleset = Ruleset.query.get(data["ruleset_id"])
-    if not ruleset:
-        return jsonify({"error": "Ruleset not found"}), 404
-
-    overlay = UserOverlay(
-        user_id=request.current_user.id,
-        ruleset_id=ruleset.id,
-        entity_type=data["entity_type"],
-        source_key=data["source_key"],
-        overlay_type=data["overlay_type"],
-        overlay_data=json.dumps(data["overlay_data"]),
-        campaign_id=data.get("campaign_id"),
-    )
-    db.session.add(overlay)
-    db.session.commit()
-    return jsonify({"overlay": overlay.to_dict()}), 201
+    return jsonify({"overlay": overlay}), 201
 
 
 @overlays_bp.route("/api/overlays/<overlay_id>", methods=["PUT"])
@@ -175,23 +149,16 @@ def update_overlay(overlay_id: str) -> tuple[Response, int] | Response:
       404:
         description: Overlay not found
     """
-    overlay = UserOverlay.query.filter_by(
-        id=overlay_id, user_id=request.current_user.id
-    ).first()
-    if not overlay:
-        return jsonify({"error": "Overlay not found"}), 404
-
     data = request.get_json()
     if not data:
         return jsonify({"error": "Request body required"}), 400
 
-    if "overlay_data" in data:
-        overlay.overlay_data = json.dumps(data["overlay_data"])
-    if "overlay_type" in data:
-        overlay.overlay_type = data["overlay_type"]
-
-    db.session.commit()
-    return jsonify({"overlay": overlay.to_dict()})
+    overlay = overlay_service.update_overlay(
+        overlay_id, request.current_user.id, data
+    )
+    if overlay is None:
+        return jsonify({"error": "Overlay not found"}), 404
+    return jsonify({"overlay": overlay})
 
 
 @overlays_bp.route("/api/overlays/<overlay_id>", methods=["DELETE"])
@@ -220,12 +187,7 @@ def delete_overlay(overlay_id: str) -> tuple[str, int] | tuple[Response, int]:
       404:
         description: Overlay not found
     """
-    overlay = UserOverlay.query.filter_by(
-        id=overlay_id, user_id=request.current_user.id
-    ).first()
-    if not overlay:
+    deleted = overlay_service.delete_overlay(overlay_id, request.current_user.id)
+    if not deleted:
         return jsonify({"error": "Overlay not found"}), 404
-
-    db.session.delete(overlay)
-    db.session.commit()
     return '', 204

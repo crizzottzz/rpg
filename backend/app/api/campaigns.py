@@ -1,9 +1,6 @@
-import json
 from flask import Blueprint, Response, request, jsonify
 
-from app.extensions import db
-from app.models.campaign import Campaign
-from app.models.ruleset import Ruleset
+from app.services import campaign_service
 from app.utils.auth import jwt_required
 
 campaigns_bp = Blueprint("campaigns", __name__)
@@ -35,8 +32,8 @@ def list_campaigns() -> Response:
       401:
         description: Not authenticated
     """
-    campaigns = Campaign.query.filter_by(user_id=request.current_user.id).all()
-    return jsonify({"campaigns": [c.to_dict() for c in campaigns]})
+    campaigns = campaign_service.list_campaigns(request.current_user.id)
+    return jsonify({"campaigns": campaigns})
 
 
 @campaigns_bp.route("/api/campaigns", methods=["POST"])
@@ -89,23 +86,14 @@ def create_campaign() -> tuple[Response, int] | Response:
     if not data:
         return jsonify({"error": "Request body required"}), 400
 
-    if not data.get("name") or not data.get("ruleset_id"):
-        return jsonify({"error": "Missing required fields", "detail": "name and ruleset_id are required"}), 400
+    try:
+        campaign = campaign_service.create_campaign(request.current_user.id, data)
+    except ValueError as e:
+        return jsonify({"error": "Missing required fields", "detail": str(e)}), 400
+    except LookupError as e:
+        return jsonify({"error": str(e)}), 404
 
-    ruleset = Ruleset.query.get(data["ruleset_id"])
-    if not ruleset:
-        return jsonify({"error": "Ruleset not found"}), 404
-
-    campaign = Campaign(
-        user_id=request.current_user.id,
-        ruleset_id=ruleset.id,
-        name=data["name"],
-        description=data.get("description", ""),
-        settings=json.dumps(data.get("settings", {})),
-    )
-    db.session.add(campaign)
-    db.session.commit()
-    return jsonify({"campaign": campaign.to_dict()}), 201
+    return jsonify({"campaign": campaign}), 201
 
 
 @campaigns_bp.route("/api/campaigns/<campaign_id>")
@@ -134,12 +122,10 @@ def get_campaign(campaign_id: str) -> tuple[Response, int] | Response:
       404:
         description: Campaign not found
     """
-    campaign = Campaign.query.filter_by(
-        id=campaign_id, user_id=request.current_user.id
-    ).first()
-    if not campaign:
+    campaign = campaign_service.get_campaign(campaign_id, request.current_user.id)
+    if campaign is None:
         return jsonify({"error": "Campaign not found"}), 404
-    return jsonify({"campaign": campaign.to_dict()})
+    return jsonify({"campaign": campaign})
 
 
 @campaigns_bp.route("/api/campaigns/<campaign_id>", methods=["PUT"])
@@ -186,27 +172,16 @@ def update_campaign(campaign_id: str) -> tuple[Response, int] | Response:
       404:
         description: Campaign not found
     """
-    campaign = Campaign.query.filter_by(
-        id=campaign_id, user_id=request.current_user.id
-    ).first()
-    if not campaign:
-        return jsonify({"error": "Campaign not found"}), 404
-
     data = request.get_json()
     if not data:
         return jsonify({"error": "Request body required"}), 400
 
-    if "name" in data:
-        campaign.name = data["name"]
-    if "description" in data:
-        campaign.description = data["description"]
-    if "status" in data:
-        campaign.status = data["status"]
-    if "settings" in data:
-        campaign.settings = json.dumps(data["settings"])
-
-    db.session.commit()
-    return jsonify({"campaign": campaign.to_dict()})
+    campaign = campaign_service.update_campaign(
+        campaign_id, request.current_user.id, data
+    )
+    if campaign is None:
+        return jsonify({"error": "Campaign not found"}), 404
+    return jsonify({"campaign": campaign})
 
 
 @campaigns_bp.route("/api/campaigns/<campaign_id>", methods=["DELETE"])
@@ -235,12 +210,7 @@ def delete_campaign(campaign_id: str) -> tuple[str, int] | tuple[Response, int]:
       404:
         description: Campaign not found
     """
-    campaign = Campaign.query.filter_by(
-        id=campaign_id, user_id=request.current_user.id
-    ).first()
-    if not campaign:
+    deleted = campaign_service.delete_campaign(campaign_id, request.current_user.id)
+    if not deleted:
         return jsonify({"error": "Campaign not found"}), 404
-
-    db.session.delete(campaign)
-    db.session.commit()
     return '', 204
