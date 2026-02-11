@@ -1,7 +1,7 @@
 # Cleanup Audit — Master To-Do List
 
 **Created:** 2026-02-10
-**Status:** Categories 1–4, 6 complete. Backlog remaining.
+**Status:** Categories 1–7 complete. Only PWA/HTTPS and theme infrastructure remain (backlog).
 
 Comprehensive audit of codebase against standards docs, actual code quality, and cross-platform readiness.
 
@@ -61,15 +61,15 @@ Blocked on Caddy/HTTPS setup. Do these together when ready.
 - [ ] **Theme provider** — `src/theme/` with DB -> localStorage -> default cascade
 - [ ] **Dark/light mode** — Token system is ready; just needs alternate token values
 
-### Standards & Documentation (Category 5)
+### ~~Standards & Documentation (Category 5)~~ — DONE
 
-- [ ] **Add responsive/mobile standards** — Section in `docs/standards/react.md`: mobile-first approach, breakpoints, touch targets, sidebar behavior
-- [ ] **Add cross-platform standards** — PWA requirements, platform-agnostic API usage
-- [ ] **Update architecture.md** — Add responsive layout section
-- [ ] **Document theme token system** — Token names and usage patterns in `docs/standards/react.md`
-- [ ] **Service layer patterns** — Add examples to `docs/standards/python.md`
-- [ ] **Flasgger version note** — Verify OpenAPI 3.1 compatibility with flasgger 0.9.7.1
-- [ ] **Config class split** — Document or implement dev/test/prod config
+- [x] **Add responsive/mobile standards** — Breakpoints, layout rules, touch targets in `react.md`
+- [x] **Update architecture.md** — Added responsive layout architecture section
+- [x] **Document theme token system** — Token names and usage patterns in `react.md`
+- [x] **Service layer patterns** — Exception contract table + examples in `python.md`
+- [x] **Flasgger version note** — OpenAPI 3.0.3 compatibility note in `api.md`
+- [x] **Config class split** — Documented in `python.md` patterns section
+- Cross-platform standards deferred to PWA work (documented in PWA backlog)
 
 ### ~~DevEx & Tooling (Category 7)~~ — DONE
 
