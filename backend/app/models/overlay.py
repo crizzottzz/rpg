@@ -1,7 +1,22 @@
 import uuid
 import json
 from datetime import datetime, timezone
+from typing import Any, TypedDict
+
 from app.extensions import db
+
+
+class OverlayDict(TypedDict):
+    id: str
+    user_id: str
+    ruleset_id: str
+    entity_type: str
+    source_key: str
+    overlay_type: str
+    overlay_data: dict[str, Any]
+    campaign_id: str | None
+    created_at: str | None
+    updated_at: str | None
 
 
 class UserOverlay(db.Model):
@@ -32,7 +47,7 @@ class UserOverlay(db.Model):
         """Parse the JSON overlay_data column."""
         return json.loads(self.overlay_data) if self.overlay_data else {}
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> OverlayDict:
         """Serialize to dictionary for JSON response."""
         return {
             "id": self.id,

@@ -176,9 +176,13 @@ def update_campaign(campaign_id: str) -> tuple[Response, int] | Response:
     if not data:
         return jsonify({"error": "Request body required"}), 400
 
-    campaign = campaign_service.update_campaign(
-        campaign_id, request.current_user.id, data
-    )
+    try:
+        campaign = campaign_service.update_campaign(
+            campaign_id, request.current_user.id, data
+        )
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+
     if campaign is None:
         return jsonify({"error": "Campaign not found"}), 404
     return jsonify({"campaign": campaign})

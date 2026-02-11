@@ -153,9 +153,13 @@ def update_overlay(overlay_id: str) -> tuple[Response, int] | Response:
     if not data:
         return jsonify({"error": "Request body required"}), 400
 
-    overlay = overlay_service.update_overlay(
-        overlay_id, request.current_user.id, data
-    )
+    try:
+        overlay = overlay_service.update_overlay(
+            overlay_id, request.current_user.id, data
+        )
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+
     if overlay is None:
         return jsonify({"error": "Overlay not found"}), 404
     return jsonify({"overlay": overlay})

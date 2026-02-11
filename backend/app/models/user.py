@@ -1,8 +1,17 @@
 import uuid
 from datetime import datetime, timezone
+from typing import TypedDict
 
 import bcrypt
 from app.extensions import db
+
+
+class UserDict(TypedDict):
+    id: str
+    username: str
+    email: str
+    created_at: str | None
+    updated_at: str | None
 
 
 class User(db.Model):
@@ -34,7 +43,7 @@ class User(db.Model):
             password.encode("utf-8"), self.password_hash.encode("utf-8")
         )
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> UserDict:
         """Serialize to dictionary for JSON response."""
         return {
             "id": self.id,
